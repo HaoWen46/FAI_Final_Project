@@ -1,3 +1,4 @@
+import math
 from functools import reduce
 from itertools import groupby
 
@@ -79,7 +80,7 @@ class GameEvaluator:
             "amount": self.__get_players_pay_sum(players)
             - self.__get_sidepots_sum(sidepots),
             "eligibles": [
-                player for player in players if player.pay_info.amount == max_pay
+                player for player in players if math.isclose(player.pay_info.amount,max_pay)
             ],
         }
 
@@ -126,6 +127,8 @@ class GameEvaluator:
 
     @classmethod
     def __is_eligible(self, player, allin_amount):
+        if math.isclose(player.pay_info.amount, allin_amount):
+            allin_amount = player.pay_info.amount
         return (
             player.pay_info.amount >= allin_amount
             and player.pay_info.status != PayInfo.FOLDED

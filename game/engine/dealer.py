@@ -55,6 +55,7 @@ class Dealer:
             else:  # finish the round after publish round result
                 self.__publish_messages(msgs)
                 break
+
         return state["table"]
 
     def set_small_blind_amount(self, amount):

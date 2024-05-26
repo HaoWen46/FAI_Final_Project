@@ -7,7 +7,7 @@ class CallPlayer(
 
     #  we define the logic to make an action through this method. (so this method would be the core of your AI)
     def declare_action(self, valid_actions, hole_card, round_state):
-        # valid_actions format => [raise_action_info, call_action_info, fold_action_info]
+        # valid_actions format => [fold_action_info, call_action_info, raise_action_info]
         call_action_info = valid_actions[1]
         action, amount = call_action_info["action"], call_action_info["amount"]
         return action, amount  # action returned here is sent to the poker engine

@@ -1,3 +1,4 @@
+import math
 from game.engine.pay_info import PayInfo
 from game.engine.card import Card
 from game.engine.poker_constants import PokerConstants as Const
@@ -37,6 +38,8 @@ class Player:
         self.stack += amount
 
     def collect_bet(self, amount):
+        if math.isclose(self.stack, amount):
+            amount = self.stack
         if self.stack < amount:
             raise ValueError(self.__collect_err_msg % (amount, self.stack))
         self.stack -= amount
