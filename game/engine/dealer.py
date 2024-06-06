@@ -305,7 +305,15 @@ class MessageSummarizer(object):
             for player in players
             if player["uuid"] == action["player_uuid"]
         ][0]
-        return base % (player_name, action["action"], action["amount"])
+
+        player_action_str = base % (player_name, action["action"], action["amount"])
+        # add error message, such as invalid call/raise amount
+        street = message["round_state"]['street']
+        last_action = message["round_state"]['action_histories'][street][-1]['action']
+        if last_action.lower() != action['action']:
+            return player_action_str + ", Invalid action. Treat as fold..."
+
+        return player_action_str
 
     def summarize_round_result(self, message):
         base = '"%s" won the round %d (stack = %s)'
