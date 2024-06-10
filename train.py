@@ -70,7 +70,7 @@ class Player(BasePokerPlayer):
         return copy.deepcopy(self.history)
         
     def __card_to_value(self, card):
-        return (13 ** SUITS.index(card[0])) + RANKS.index(card[1])
+        return (13 * SUITS.index(card[0])) + RANKS.index(card[1])
         
     def declare_action(self, valid_actions, hole_card, round_state):
         self.stack_size = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
