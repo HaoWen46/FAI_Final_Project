@@ -287,7 +287,7 @@ class Agent(object):
         agent.replay = checkpoint['replay']
         agent.optimizer.load_state_dict(checkpoint['optimzier'])
         
-    def save_checkpoint(self, path, filename='agent.pt'):
+    def save_checkpoint(self, path, filename='checkpoint.pt'):
         attr = {
             'estimator': self.estimator.state_dict(),
             'target_estimator': self.target_estimator.state_dict(),
@@ -308,7 +308,7 @@ class Agent(object):
             'save_path': self.save_path,
             'save_freq': self.save_freq
         }
-        torch.save(attr, os.path.join(path, filename))
+        torch.save(attr, filename)
 
 class Estimator(nn.Module):
     def __init__(self, num_states, mlp_layers=None):
