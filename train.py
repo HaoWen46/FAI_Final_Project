@@ -261,6 +261,7 @@ class Agent(object):
         state_batch = np.array(state_batch)
         
         self.optimizer.zero_grad()
+        
         self.estimator.train()
         
         state_batch = torch.from_numpy(state_batch).float().to(self.device)
@@ -346,7 +347,7 @@ class Estimator(nn.Module):
         self.mlp_layers = mlp_layers
         
         layer_dims = [num_states] + self.mlp_layers
-        fc = [nn.BatchNorm1d(layer_dims[0])]
+        fc = []
         for i in range(1, len(layer_dims)):
             fc.append(nn.Linear(layer_dims[i - 1], layer_dims[i], bias=True))
             fc.append(nn.Tanh())
