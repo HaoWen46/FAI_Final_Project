@@ -195,13 +195,13 @@ class Agent(object):
     
     def predict(self, state, legal_actions):
         q_values = self.__predict_nograd(state)
+        print('hi')
         masked_q_values = -np.inf * np.ones(NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values[legal_actions]
         return masked_q_values[legal_actions]
     
     def step(self, state, legal_actions):
         q_values = self.predict(state)
-        print('hi')
         epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * (self.epsilon_decay ** self.total_t)
         if random.random() < epsilon:
             action = random.choice(legal_actions)
