@@ -282,7 +282,7 @@ class Agent(object):
             
         self.train_t += 1
         
-        if self.train_t % 10 == 0:
+        if self.train_t % 500 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
         
         if self.save_path and self.train_t % self.save_freq == 0:
@@ -357,7 +357,7 @@ class Estimator(nn.Module):
     def forward(self, X):
         return self.fc(X)
 
-def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=128):
+def train(baselines, mlp_layers=[64,64], episodes=5000, lr=0.001, batch_size=128):
     file = open('training.log', 'a')
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
