@@ -106,7 +106,6 @@ class Player(BasePokerPlayer):
             self.community_cards.flatten(),
             self.position
         ])
-        print(state.shape)
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
@@ -179,8 +178,12 @@ class Agent(object):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         self.mlp_layers = mlp_layers
+        
         self.estimator = Estimator(num_states=NUM_STATES, mlp_layers=self.mlp_layers)
+        self.estimator.eval()
+        
         self.target_estimator = Estimator(num_states=NUM_STATES, mlp_layers=self.mlp_layers)
+        self.target_estimator.eval()
         
         self.update_target_freq = update_target_freq
         self.epsilon_start = epsilon_start
@@ -269,6 +272,8 @@ class Agent(object):
         loss = self.criterion(Q, target_batch)
         loss.backward()
         self.optimizer.step()
+        
+        self.estimator.eval()
         
         if self.train_t % self.update_target_freq == 0:
             self.target_estimator = copy.deepcopy(self.estimator)
