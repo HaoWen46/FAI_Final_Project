@@ -106,7 +106,6 @@ class Player(BasePokerPlayer):
             self.community_cards.flatten(),
             self.position
         ])
-        print('hi')
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
@@ -140,7 +139,7 @@ class Player(BasePokerPlayer):
         
         if street == 'flop':
             cards = round_state['community_card']
-            ranks = sorted(map(self.__card_to_value, cards))
+            ranks = sorted(list(map(self.__card_to_value, cards)))
             self.community_cards[0][ranks[0]] = 1
             self.community_cards[1][ranks[1]] = 1
             self.community_cards[2][ranks[2]] = 1
@@ -213,6 +212,7 @@ class Agent(object):
         return q_values
     
     def predict(self, state, legal_actions):
+        print("hi")
         q_values = self.__predict_nograd(state)
         masked_q_values = -np.inf * np.ones(NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values[legal_actions]
