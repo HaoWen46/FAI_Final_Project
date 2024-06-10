@@ -160,7 +160,7 @@ class Player(BasePokerPlayer):
             self.win = 1
         if self.history:
             self.history[-1][2] = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
-            self.history[-1][3] = torch.zeros(NUM_STATES)
+            self.history[-1][3] = np.zeros(NUM_STATES)
             self.history[-1][5] = True
 
 class Agent(object):
