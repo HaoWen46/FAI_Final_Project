@@ -165,18 +165,18 @@ class Player(BasePokerPlayer):
 
 class Agent(object):
     def __init__(self,
-                 replay_size=150,
+                 replay_size=10000,
                  update_target_freq=50,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
                  epsilon_decay=0.995,
                  discount=0.9,
-                 batch_size=32,
+                 batch_size=200,
                  train_freq=1,
                  mlp_layers=None,
                  learning_rate=0.001,
                  save_path=None,
-                 save_freq=10):
+                 save_freq=1000):
         
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         
@@ -359,7 +359,7 @@ class Estimator(nn.Module):
     def forward(self, X):
         return self.fc(X)
 
-def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
+def train(baselines, mlp_layers=[64,64], episodes=3000, lr=0.005, batch_size=128):
     file = open('training.log', 'a')
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
@@ -380,7 +380,7 @@ def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
         
         for i in range(len(history)):
             agent.feed(history[i])
-        if episode % 10 == 0:
+        if episode % 100 == 0:
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / (episode + 1)}')
 
