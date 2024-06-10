@@ -91,9 +91,9 @@ class Player(BasePokerPlayer):
         
         pot = round_state['pot']
         pot_size = pot['main']['amount']
-        side = pot['side']
-        if self.uuid in side['eligibles']:
-            pot_size += side['amount']
+        for side in pot['side']:
+            if self.uuid in side['eligibles']:
+                pot_size += side['amount']
             
         print("hi")
         state = np.concatenate([
