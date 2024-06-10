@@ -253,6 +253,9 @@ class Agent(object):
             
         self.train_t += 1
         
+        if self.train_t % 100 == 0:
+            print(f'iteration {self.train_t}, Loss = {loss.item()}')
+        
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
             
@@ -330,7 +333,7 @@ def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=500
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
     else:
-        agent = Agent(learning_rate=lr, batch_size=batch_size, mlp_layers=mlp_layers)
+        agent = Agent(learning_rate=lr, batch_size=batch_size, mlp_layers=mlp_layers, save_path=SAVE_PATH)
     
     for episode in range(episodes):
         player = Player(agent=agent)
@@ -342,11 +345,8 @@ def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=500
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
         
-        epsiode_reward = 0
         for i in range(len(history)):
             agent.feed(history[i])
-        if episode % 100 == 0:
-            file.write(f'Episode {episode}: Reward={epsiode_reward}\n')
 
 baselines = [baseline0_ai] * 5
 train(baselines=baselines)
