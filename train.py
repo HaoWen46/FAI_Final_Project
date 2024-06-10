@@ -207,11 +207,11 @@ class Agent(object):
         state, action, reward, next_state, legal_actions, done = tuple(transition)
         self.replay.append((state, action, reward, next_state, legal_actions, done))
         self.total_t += 1
+        print(self.total_t, ' ', self.batch_size)
         if self.total_t >= self.batch_size:
             self.train()
         
     def train(self):
-        print("hi")
         mini_batch = random.sample(self.replay, self.batch_size)
         state_batch = torch.cat([s1 for (s1,a,r,s2,l,d) in mini_batch])  
         next_state_batch = torch.cat([s2 for (s1,a,r,s2,l,d) in mini_batch])   
