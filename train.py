@@ -225,6 +225,7 @@ class Agent(object):
             action = random.choice(legal_actions)
         else:
             action = np.argmax(q_values)
+        print('hi')
         return action
     
     def feed(self, transition):
@@ -232,7 +233,6 @@ class Agent(object):
         self.replay.append((state, action, reward, next_state, legal_actions, done))
         self.total_t += 1
         if self.total_t >= self.batch_size:
-            print(hi)
             self.train()
         
     def train(self):
