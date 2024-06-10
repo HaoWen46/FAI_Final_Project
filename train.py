@@ -232,6 +232,7 @@ class Agent(object):
         self.replay.append((state, action, reward, next_state, legal_actions, done))
         self.total_t += 1
         if self.total_t >= self.batch_size:
+            print(hi)
             self.train()
         
     def train(self):
