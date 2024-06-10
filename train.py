@@ -237,8 +237,8 @@ class Agent(object):
         
     def train(self):
         mini_batch = random.sample(self.replay, self.batch_size)
-        state_batch = torch.Tensor([s1 for (s1,a,r,s2,l,d) in mini_batch])  
-        next_state_batch = torch.Tensor([s2 for (s1,a,r,s2,l,d) in mini_batch])   
+        state_batch = torch.stack([s1 for (s1,a,r,s2,l,d) in mini_batch])  
+        next_state_batch = torch.stack([s2 for (s1,a,r,s2,l,d) in mini_batch])   
         action_batch = torch.Tensor([a for (s1,a,r,s2,l,d) in mini_batch])
         reward_batch = torch.Tensor([r for (s1,a,r,s2,l,d) in mini_batch])
         done_batch = torch.Tensor([d for (s1,a,r,s2,l,d) in mini_batch])
