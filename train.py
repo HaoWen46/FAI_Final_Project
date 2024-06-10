@@ -93,6 +93,7 @@ class Player(BasePokerPlayer):
         if self.uuid in round_state['pot']['side']['eligibles']:
             pot_size += round_state['pot']['side']['amount']
             
+        print("hi")
         state = np.concatenate([
             [pot_size],
             [self.max_bet],
@@ -104,7 +105,6 @@ class Player(BasePokerPlayer):
             self.position,
             self.stack
         ])
-        print("hi")
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
