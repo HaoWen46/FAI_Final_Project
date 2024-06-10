@@ -106,6 +106,7 @@ class Player(BasePokerPlayer):
             self.community_cards.flatten(),
             self.position
         ])
+        print(state.shape)
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
