@@ -73,7 +73,6 @@ class Player(BasePokerPlayer):
         return (13 * SUITS.index(card[0])) + RANKS.index(card[1])
         
     def declare_action(self, valid_actions, hole_card, round_state):
-        print("declared 1")
         self.stack_size = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
         legal_actions = [0, 1]
         increment = 0.7 # increase in each level of raise
@@ -89,6 +88,7 @@ class Player(BasePokerPlayer):
         pot_size = round_state['pot']['main']['amount']
         if self.uuid in round_state['pot']['side']['eligibles']:
             pot_size += round_state['pot']['side']['amount']
+        print("hello")
             
         state = np.concatenate([
             [pot_size],
@@ -349,7 +349,6 @@ def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
         
-        print(history)
         for i in range(len(history)):
             agent.feed(history[i])
         if episode % 10 == 0:
