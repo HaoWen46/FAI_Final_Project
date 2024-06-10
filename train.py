@@ -340,7 +340,7 @@ def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=500
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_player(name='p0', algorithm=player)
         for i in range(len(baselines)):
-            config.register_player(name=f'p{i}', algorithm=baselines[i])
+            config.register_player(name=f'p{i}', algorithm=baselines[i]())
         
         game_result = start_poker(config, verbose=1)
         history = player.get_history()
