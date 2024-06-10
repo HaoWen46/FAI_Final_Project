@@ -73,8 +73,6 @@ class Player(BasePokerPlayer):
         return (13 * SUITS.index(card[0])) + RANKS.index(card[1])
         
     def declare_action(self, valid_actions, hole_card, round_state):
-        hand_strength = HandEvaluator.eval_hand(hole_card, round_state['community_card'])
-        print("hello")
         self.stack_size = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
         legal_actions = [0, 1]
         increment = 0.7 # increase in each level of raise
@@ -85,6 +83,12 @@ class Player(BasePokerPlayer):
                 if min_amount <= increment * i * self.max_bet <= max_amount:
                     legal_actions.append(i)
         
+        if round_state['street'] == 'preflop':
+            rank = sorted([RANKS.index(hole_card[0][1]), RANKS.index(hole_card[1][1])])
+            hand_strength = rank[1] << 4 | rank[0]
+        else:
+            hand_strength = HandEvaluator.eval_hand(hole_card, round_state['community_card'])
+        print("hello")
         
         pot_size = round_state['pot']['main']['amount']
         if self.uuid in round_state['pot']['side']['eligibles']:
