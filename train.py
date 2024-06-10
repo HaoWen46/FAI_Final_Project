@@ -112,7 +112,6 @@ class Player(BasePokerPlayer):
 
     def receive_game_start_message(self, game_info):
         self.stack = game_info['rule']['initial_stack']
-        self.max_round = game_info['max_round']
         self.num_players = game_info['player_num']
 
     def receive_round_start_message(self, round_count, hole_card, seats):
