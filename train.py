@@ -89,9 +89,11 @@ class Player(BasePokerPlayer):
         else:
             hand_strength = HandEvaluator.eval_hand(hole_card, round_state['community_card'])
         
-        pot_size = round_state['pot']['main']['amount']
-        if self.uuid in round_state['pot']['side']['eligibles']:
-            pot_size += round_state['pot']['side']['amount']
+        pot = round_state['pot']
+        pot_size = pot['main']['amount']
+        side = pot['side']
+        if self.uuid in side['eligibles']:
+            pot_size += side['amount']
             
         print("hi")
         state = np.concatenate([
