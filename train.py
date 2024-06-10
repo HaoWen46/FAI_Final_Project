@@ -200,8 +200,8 @@ class Agent(object):
         return masked_q_values[legal_actions]
     
     def step(self, state, legal_actions):
-        print('hi')
         q_values = self.predict(state)
+        print('hi')
         epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * (self.epsilon_decay ** self.total_t)
         if random.random() < epsilon:
             action = random.choice(legal_actions)
