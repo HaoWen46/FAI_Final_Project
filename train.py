@@ -339,7 +339,7 @@ def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=500
         for i in range(len(baselines)):
             config.register_player(name=f'p{i}', algorithm=baselines[i]())
         
-        game_result = start_poker(config, verbose=1)
+        game_result = start_poker(config, verbose=0)
         history = player.get_history()
         
         epsiode_reward = 0

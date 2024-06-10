@@ -20,6 +20,6 @@ config.register_player(name="p2", algorithm=random_ai())
 
 ## Play in interactive mode if uncomment
 #config.register_player(name="me", algorithm=console_ai())
-game_result = start_poker(config, verbose=2)
+game_result = start_poker(config, verbose=0)
 
 print(json.dumps(game_result, indent=4))
