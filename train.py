@@ -328,7 +328,7 @@ class Estimator(nn.Module):
     def forward(self, X):
         return self.fc(X)
 
-def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=32):
+def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
     file = open('training.log', 'a')
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
@@ -347,6 +347,8 @@ def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=32)
         
         for i in range(len(history)):
             agent.feed(history[i])
+        if episode % 10 == 0:
+            print(f'episode {episode} done')
 
 baselines = [baseline0_ai] * 5
 train(baselines=baselines)
