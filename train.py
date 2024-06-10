@@ -103,8 +103,7 @@ class Player(BasePokerPlayer):
             self.street,
             self.hole_cards.flatten(),
             self.community_cards.flatten(),
-            self.position,
-            self.stack
+            self.position
         ])
         print("hi")
         best_action = self.agent.step(state, legal_actions)
