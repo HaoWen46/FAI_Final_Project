@@ -143,20 +143,20 @@ class Player(BasePokerPlayer):
 
 class Agent(object):
     def __init__(self,
-                 replay_size=15000,
-                 update_target_freq=1000,
+                 replay_size=150,
+                 update_target_freq=50,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
                  epsilon_decay=0.995,
                  discount=0.9,
-                 batch_size=150,
+                 batch_size=32,
                  train_freq=1,
                  mlp_layers=None,
                  learning_rate=0.001,
                  save_path=None,
-                 save_freq=1000):
+                 save_freq=100):
         
-        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         self.mlp_layers = mlp_layers
         self.estimator = Estimator(num_states=NUM_STATES, mlp_layers=self.mlp_layers)
@@ -328,7 +328,7 @@ class Estimator(nn.Module):
     def forward(self, X):
         return self.fc(X)
 
-def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=500):
+def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=32):
     file = open('training.log', 'a')
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
