@@ -250,13 +250,13 @@ class Agent(object):
         for b in range(self.batch_size):
             legal_actions.extend([b * NUM_ACTIONS + i for i in legal_batch[b]])
         
+        print('hi')
         q_values_next = self.__predict_nograd(state_batch)
         masked_q_values = -np.inf * np.ones(self.batch_size * NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
         masked_q_values = masked_q_values.reshape((self.batch_size, NUM_ACTIONS))
         actions = np.argmax(masked_q_values, axis=1)
 
-        print('hi')
         
         q_values_next_target = self.__predict_nograd(next_state_batch)
         target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
