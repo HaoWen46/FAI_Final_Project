@@ -183,7 +183,7 @@ class Agent(object):
         self.save_freq = save_freq
         
         self.criterion = nn.MSELoss()
-        self.optimizer = torch.optim.Adam(params=self.qnet.parameters(), lr=learning_rate)
+        self.optimizer = torch.optim.Adam(params=self.estimator.parameters(), lr=learning_rate)
     
     def __predict_nograd(self, state):
         with torch.no_grad():
