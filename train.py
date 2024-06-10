@@ -134,8 +134,6 @@ class Player(BasePokerPlayer):
     def receive_game_update_message(self, action, round_state):
         self.max_bet = max(self.max_bet, action['amount'])
         seats = round_state['seats']
-        for i in range(len(seats)):
-            self.stacks[i] = seats[i]['stack']
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         if self.history:
