@@ -211,6 +211,7 @@ class Agent(object):
             self.train()
         
     def train(self):
+        print("hi")
         mini_batch = random.sample(self.replay, self.batch_size)
         state_batch = torch.cat([s1 for (s1,a,r,s2,l,d) in mini_batch])  
         next_state_batch = torch.cat([s2 for (s1,a,r,s2,l,d) in mini_batch])   
@@ -256,8 +257,6 @@ class Agent(object):
         if self.train_t % 100 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
         
-        if self.train_t % self.save_freq == 0:
-            print("saved")
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
             
