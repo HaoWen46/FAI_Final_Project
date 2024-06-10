@@ -347,6 +347,7 @@ def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
         
+        print(history)
         for i in range(len(history)):
             agent.feed(history[i])
         if episode % 10 == 0:
