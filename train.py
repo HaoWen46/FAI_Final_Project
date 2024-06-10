@@ -242,6 +242,8 @@ class Agent(object):
         reward_batch = torch.Tensor([r for (s1,a,r,s2,l,d) in mini_batch])
         done_batch = torch.Tensor([d for (s1,a,r,s2,l,d) in mini_batch])
         
+        print('hi1')
+        
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
         
         legal_actions = []
@@ -253,6 +255,8 @@ class Agent(object):
         masked_q_values[legal_actions] = q_values_next[legal_actions]
         masked_q_values = masked_q_values.reshape((self.batch_size, NUM_ACTIONS))
         actions = np.argmax(masked_q_values, axis=1)
+        
+        print('hi2')
         
         q_values_next_target = self.__predict_nograd(next_state_batch)
         target_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
@@ -279,8 +283,9 @@ class Agent(object):
             self.target_estimator = copy.deepcopy(self.estimator)
             
         self.train_t += 1
+        print('hi3')
         
-        if self.train_t % 100 == 0:
+        if self.train_t % 10 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
         
         if self.save_path and self.train_t % self.save_freq == 0:
