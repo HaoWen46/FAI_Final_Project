@@ -253,7 +253,7 @@ class Agent(object):
         
         q_values_next = self.__predict_nograd(state_batch)
         masked_q_values = -np.inf * np.ones(self.batch_size * NUM_ACTIONS, dtype=float)
-        masked_q_values[legal_actions] = q_values_next[legal_actions]
+        masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
         masked_q_values = masked_q_values.reshape((self.batch_size, NUM_ACTIONS))
         actions = np.argmax(masked_q_values, axis=1)
         
