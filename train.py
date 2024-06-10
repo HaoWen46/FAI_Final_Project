@@ -106,7 +106,6 @@ class Player(BasePokerPlayer):
             self.community_cards.flatten(),
             self.position
         ])
-        state = torch.from_numpy(state).float()
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
@@ -208,8 +207,7 @@ class Agent(object):
     
     def __predict_nograd(self, state):
         with torch.no_grad():
-            state = state.float().to(self.device)
-            print('hi')
+            state = torch.from_numpy(state).float().to(self.device)
             q_values = self.estimator(state).cpu().numpy()
         return q_values
     
