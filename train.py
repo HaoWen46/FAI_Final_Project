@@ -308,6 +308,7 @@ class Agent(object):
             'save_path': self.save_path,
             'save_freq': self.save_freq
         }
+        print('saved')
         torch.save(attr, filename)
 
 class Estimator(nn.Module):
