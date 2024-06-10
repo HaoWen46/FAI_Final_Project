@@ -112,7 +112,8 @@ class Player(BasePokerPlayer):
         
         if self.history:
             self.history[-1][3] = state
-            self.history[-1] = tuple(self.history[-1])
+        if len(self.history) >= 2:
+            self.history[-2] = tuple(self.history[-2])
             
         self.history.append([state, best_action, 0, None, legal_actions, False])
         return action_set[best_action], amount
