@@ -82,13 +82,13 @@ class Player(BasePokerPlayer):
             for i in range(2, NUM_ACTIONS):
                 if min_amount <= increment * i * self.max_bet <= max_amount:
                     legal_actions.append(i)
+        print("hello")
         
         hand_strength = HandEvaluator.eval_hand(hole_card, round_state['community_card'])
         
         pot_size = round_state['pot']['main']['amount']
         if self.uuid in round_state['pot']['side']['eligibles']:
             pot_size += round_state['pot']['side']['amount']
-        print("hello")
             
         state = np.concatenate([
             [pot_size],
@@ -104,7 +104,6 @@ class Player(BasePokerPlayer):
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
-        print("decalred 2")
         
         if self.history:
             self.history[-1][3] = state
