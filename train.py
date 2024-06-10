@@ -210,6 +210,7 @@ class Agent(object):
         with torch.no_grad():
             state = torch.from_numpy(state).float().to(self.device)
             q_values = self.estimator(state).cpu().numpy()
+        print('hi')
         return q_values
     
     def predict(self, state, legal_actions):
@@ -225,7 +226,6 @@ class Agent(object):
             action = random.choice(legal_actions)
         else:
             action = np.argmax(q_values)
-        print('hi')
         return action
     
     def feed(self, transition):
