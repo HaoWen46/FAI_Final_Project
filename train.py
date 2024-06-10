@@ -287,7 +287,7 @@ class Agent(object):
         
         if self.train_t % 500 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
-            self.loss = loss.items()
+            self.loss = loss.item()
         
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
