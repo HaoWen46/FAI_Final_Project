@@ -64,6 +64,7 @@ class Player(BasePokerPlayer):
         self.street = np.zeros(4)
         self.stack_size = 0
         self.max_bet = 0
+        self.win = 0
         self.history = [] # (state, action, reward, next_state, legal_actions, done)
         
     def get_history(self):
@@ -155,6 +156,8 @@ class Player(BasePokerPlayer):
         seats = round_state['seats']
 
     def receive_round_result_message(self, winners, hand_info, round_state):
+        if winners[0]['uuid'] == self.uuid:
+            self.win = 1
         if self.history:
             self.history[-1][2] = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
             self.history[-1][3] = torch.zeros(NUM_STATES)
@@ -252,8 +255,7 @@ class Agent(object):
         masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
         masked_q_values = masked_q_values.reshape((self.batch_size, NUM_ACTIONS))
         actions = np.argmax(masked_q_values, axis=1)
-        
-        print('hi2')
+
         
         q_values_next_target = self.__predict_nograd(next_state_batch)
         target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
@@ -280,7 +282,6 @@ class Agent(object):
             self.target_estimator = copy.deepcopy(self.estimator)
             
         self.train_t += 1
-        print('hi3')
         
         if self.train_t % 10 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
@@ -365,6 +366,7 @@ def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
     else:
         agent = Agent(learning_rate=lr, batch_size=batch_size, mlp_layers=mlp_layers, save_path=SAVE_PATH)
     
+    total_wins = 0
     for episode in range(episodes):
         player = Player(agent=agent)
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
@@ -374,11 +376,13 @@ def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
         
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
+        total_wins += player.win
         
         for i in range(len(history)):
             agent.feed(history[i])
         if episode % 10 == 0:
             print(f'episode {episode} done')
+            print(f'Winning rate: {total_wins / (episode + 1)}')
 
 baselines = [baseline0_ai] * 5
 train(baselines=baselines)
