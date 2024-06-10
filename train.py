@@ -243,7 +243,7 @@ class Agent(object):
         reward_batch = torch.Tensor([r for (s1,a,r,s2,l,d) in mini_batch])
         done_batch = torch.Tensor([d for (s1,a,r,s2,l,d) in mini_batch])
         
-        print(type(done_batch))
+        print(type(done_batch[0]))
         
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
         
