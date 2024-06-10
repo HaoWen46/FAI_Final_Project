@@ -111,11 +111,9 @@ class Player(BasePokerPlayer):
             amount = best_action * increment
         
         if self.history:
-            self.history[-1][3] = state
-        if len(self.history) >= 2:
-            self.history[-2] = tuple(self.history[-2])
+            self.history[-1][3] = torch.from_numpy(state).float()
             
-        self.history.append([state, best_action, 0, None, legal_actions, False])
+        self.history.append([torch.from_numpy(state).float(), best_action, 0, None, legal_actions, False])
         return action_set[best_action], amount
 
     def receive_game_start_message(self, game_info):
@@ -159,9 +157,8 @@ class Player(BasePokerPlayer):
     def receive_round_result_message(self, winners, hand_info, round_state):
         if self.history:
             self.history[-1][2] = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
-            self.history[-1][3] = np.zeros(NUM_STATES)
+            self.history[-1][3] = torch.from_numpy(np.zeros(NUM_STATES)).float()
             self.history[-1][5] = True
-            self.history[-1] = tuple(self.history[-1])
 
 class Agent(object):
     def __init__(self,
@@ -178,7 +175,7 @@ class Agent(object):
                  save_path=None,
                  save_freq=10):
         
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         
         self.mlp_layers = mlp_layers
         
