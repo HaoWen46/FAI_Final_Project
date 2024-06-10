@@ -88,7 +88,6 @@ class Player(BasePokerPlayer):
             hand_strength = rank[1] << 4 | rank[0]
         else:
             hand_strength = HandEvaluator.eval_hand(hole_card, round_state['community_card'])
-        print("hello")
         
         pot_size = round_state['pot']['main']['amount']
         if self.uuid in round_state['pot']['side']['eligibles']:
@@ -113,6 +112,7 @@ class Player(BasePokerPlayer):
             self.history[-1][3] = state
             
         self.history.append((state, best_action, 0, None, legal_actions, False))
+        print("hi")
         return action_set[best_action], amount
 
     def receive_game_start_message(self, game_info):
