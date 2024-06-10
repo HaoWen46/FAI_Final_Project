@@ -7,6 +7,7 @@ import torch.nn as nn
 import numpy as np
 import random
 import copy
+import csv
 import os
 
 from baseline0 import setup_ai as baseline0_ai
@@ -209,6 +210,8 @@ class Agent(object):
         
         self.criterion = nn.MSELoss()
         self.optimizer = torch.optim.Adam(params=self.estimator.parameters(), lr=learning_rate)
+        
+        self.loss = 0
     
     def __predict_nograd(self, state):
         with torch.no_grad():
@@ -284,6 +287,7 @@ class Agent(object):
         
         if self.train_t % 500 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
+            self.loss = loss.items()
         
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
@@ -357,15 +361,16 @@ class Estimator(nn.Module):
     def forward(self, X):
         return self.fc(X)
 
-def train(baselines, mlp_layers=[64,64], episodes=5000, lr=0.001, batch_size=128):
-    file = open('training.log', 'a')
+def train(baselines, mlp_layers=[64,64,64], episodes=5000, lr=0.001, batch_size=128):
+    file = 'training.csv'
+    losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
     else:
         agent = Agent(learning_rate=lr, batch_size=batch_size, mlp_layers=mlp_layers, save_path=SAVE_PATH)
     
     total_wins = 0
-    for episode in range(episodes):
+    for episode in range(1, episodes + 1):
         player = Player(agent=agent)
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_player(name='p0', algorithm=player)
@@ -378,9 +383,14 @@ def train(baselines, mlp_layers=[64,64], episodes=5000, lr=0.001, batch_size=128
         
         for i in range(len(history)):
             agent.feed(history[i])
-        if (episode + 1) % 100 == 0:
-            print(f'episode {episode + 1} done')
-            print(f'Winning rate: {total_wins / (episode + 1)}')
+        if episode % 500 == 0:
+            losses.append(agent.loss)
+            print(f'episode {episode} done')
+            print(f'Winning rate: {total_wins / episode}')
+    
+    with open(file, mode='a', newline=''):
+        writer = csv.writer(file)
+        writer.writerows(losses)
 
 baselines = [baseline0_ai] * 5
 train(baselines=baselines)
