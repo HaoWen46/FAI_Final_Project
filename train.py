@@ -154,7 +154,7 @@ class Agent(object):
                  mlp_layers=None,
                  learning_rate=0.001,
                  save_path=None,
-                 save_freq=100):
+                 save_freq=10):
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
