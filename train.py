@@ -23,25 +23,25 @@ RANKS = ('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K')
 STREETS = ('preflop', 'flop', 'turn', 'river')
 
 SAVE_PATH = './checkpoint.pt'
-NUM_STATES = 380
+NUM_STATES = 379
 """
-1. pot
-2. max_bet
-3. max_aggresion
-4. stack_size
-5. hand_strength
-6. preflop
-7. flop
-8. turn
-9. river
-10  ~  61. hole_cards[0]
-62  ~ 113. hole_cards[1]
-114 ~ 165. community_cards[0]
-166 ~ 217. community_cards[1]
-218 ~ 269. community_cards[2]
-270 ~ 321. community_cards[3]
-322 ~ 373. community_cards[4]
-374 ~ 379. position (at most 6)
+0. pot_size
+1. max_bet
+2. max_aggresion
+3. stack_size
+4. hand_strength
+5. preflop
+6. flop
+7. turn
+8. river
+9   ~  60. hole_cards[0]
+61  ~ 112. hole_cards[1]
+113 ~ 164. community_cards[0]
+165 ~ 216. community_cards[1]
+217 ~ 268. community_cards[2]
+269 ~ 320. community_cards[3]
+321 ~ 372. community_cards[4]
+373 ~ 378. position (at most 6)
 """
 
 NUM_ACTIONS = 7
@@ -98,6 +98,7 @@ class Player(BasePokerPlayer):
         state = np.concatenate([
             [pot_size],
             [self.max_bet],
+            [0],
             [self.stack_size],
             [hand_strength],
             self.street,
