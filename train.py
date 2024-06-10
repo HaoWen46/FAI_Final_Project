@@ -137,6 +137,19 @@ class Player(BasePokerPlayer):
         self.street.fill(0)
         self.street[STREETS.index(street)] = 1
         
+        if street == 'flop':
+            cards = round_state['community_card']
+            ranks = sorted(map(self.__card_to_value, cards))
+            self.community_cards[ranks[0]] = 1
+            self.community_cards[ranks[1]] = 1
+            self.community_cards[ranks[2]] = 1
+        elif street == 'turn':
+            card = round_state['community_card'][3]
+            self.community_cards[self.__card_to_value(card)] = 1
+        elif street == 'river':
+            card = round_state['community_card'][4]
+            self.community_cards[self.__card_to_value(card)] = 1
+        
     def receive_game_update_message(self, action, round_state):
         self.max_bet = max(self.max_bet, action['amount'])
         seats = round_state['seats']
