@@ -237,6 +237,7 @@ class Agent(object):
             self.train()
         
     def train(self):
+        print('hi')
         mini_batch = random.sample(self.replay, self.batch_size)
         state_batch = np.stack([s1 for (s1,a,r,s2,l,d) in mini_batch])  
         next_state_batch = np.stack([s2 for (s1,a,r,s2,l,d) in mini_batch])   
@@ -245,7 +246,6 @@ class Agent(object):
         done_batch = np.array([float(d) for (s1,a,r,s2,l,d) in mini_batch])
         
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
-        print('hi')
         
         legal_actions = []
         for b in range(self.batch_size):
