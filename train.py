@@ -188,6 +188,7 @@ class Agent(object):
         self.optimizer = torch.optim.Adam(params=self.estimator.parameters(), lr=learning_rate)
     
     def __predict_nograd(self, state):
+        self.estimator.eval()
         with torch.no_grad():
             state = torch.from_numpy(state).float().to(self.device)
             q_values = self.estimator(state).cpu().numpy()
