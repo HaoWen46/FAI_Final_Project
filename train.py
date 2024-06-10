@@ -112,6 +112,7 @@ class Player(BasePokerPlayer):
         
         if self.history:
             self.history[-1][3] = state
+            self.history[-1] = tuple(self.history[-1])
             
         self.history.append([state, best_action, 0, None, legal_actions, False])
         return action_set[best_action], amount
@@ -159,6 +160,7 @@ class Player(BasePokerPlayer):
             self.history[-1][2] = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
             self.history[-1][3] = np.zeros(NUM_STATES)
             self.history[-1][5] = True
+            self.history[-1] = tuple(self.history[-1])
 
 class Agent(object):
     def __init__(self,
@@ -208,9 +210,7 @@ class Agent(object):
     def __predict_nograd(self, state):
         with torch.no_grad():
             state = torch.from_numpy(state).float().to(self.device)
-            print("hello")
             q_values = self.estimator(state).cpu().numpy()
-            print('hi')
         return q_values
     
     def predict(self, state, legal_actions):
@@ -232,7 +232,6 @@ class Agent(object):
         state, action, reward, next_state, legal_actions, done = tuple(transition)
         self.replay.append((state, action, reward, next_state, legal_actions, done))
         self.total_t += 1
-        print(self.total_t, ' ', self.batch_size)
         if self.total_t >= self.batch_size:
             self.train()
         
