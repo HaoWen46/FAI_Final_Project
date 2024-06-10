@@ -315,7 +315,7 @@ class Agent(object):
         agent.target_estimator.load_state_dict(checkpoint['target_estimator'])
         
         agent.replay = checkpoint['replay']
-        agent.optimizer.load_state_dict(checkpoint['optimzier'])
+        agent.optimizer.load_state_dict(checkpoint['optimizier'])
         
     def save_checkpoint(self, path, filename='checkpoint.pt'):
         attr = {
