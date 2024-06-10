@@ -64,7 +64,6 @@ class Player(BasePokerPlayer):
         self.street = np.zeros(4)
         self.stack_size = 0
         self.max_bet = 0
-        self.win = 0
         self.history = [] # (state, action, reward, next_state, legal_actions, done)
         
     def get_history(self):
@@ -107,6 +106,7 @@ class Player(BasePokerPlayer):
             self.community_cards.flatten(),
             self.position
         ])
+        state = torch.from_numpy(state).float()
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
@@ -156,27 +156,25 @@ class Player(BasePokerPlayer):
         seats = round_state['seats']
 
     def receive_round_result_message(self, winners, hand_info, round_state):
-        if winners[0]['uuid'] == self.uuid:
-            self.win = 1
         if self.history:
             self.history[-1][2] = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
-            self.history[-1][3] = np.zeros(NUM_STATES)
+            self.history[-1][3] = torch.zeros(NUM_STATES)
             self.history[-1][5] = True
 
 class Agent(object):
     def __init__(self,
-                 replay_size=10000,
+                 replay_size=150,
                  update_target_freq=50,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
                  epsilon_decay=0.995,
                  discount=0.9,
-                 batch_size=200,
+                 batch_size=32,
                  train_freq=1,
                  mlp_layers=None,
                  learning_rate=0.001,
                  save_path=None,
-                 save_freq=1000):
+                 save_freq=10):
         
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         
@@ -210,7 +208,8 @@ class Agent(object):
     
     def __predict_nograd(self, state):
         with torch.no_grad():
-            state = torch.from_numpy(state).float().to(self.device)
+            state = state.float().to(self.device)
+            print('hi')
             q_values = self.estimator(state).cpu().numpy()
         return q_values
     
@@ -221,7 +220,6 @@ class Agent(object):
         return masked_q_values
     
     def step(self, state, legal_actions):
-        print('hi')
         q_values = self.predict(state, legal_actions)
         epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * (self.epsilon_decay ** self.total_t)
         if random.random() < epsilon:
@@ -231,7 +229,6 @@ class Agent(object):
         return action
     
     def feed(self, transition):
-        print('hi')
         state, action, reward, next_state, legal_actions, done = tuple(transition)
         self.replay.append((state, action, reward, next_state, legal_actions, done))
         self.total_t += 1
@@ -240,11 +237,11 @@ class Agent(object):
         
     def train(self):
         mini_batch = random.sample(self.replay, self.batch_size)
-        state_batch = np.stack([s1 for (s1,a,r,s2,l,d) in mini_batch])  
-        next_state_batch = np.stack([s2 for (s1,a,r,s2,l,d) in mini_batch])   
-        action_batch = np.array([a for (s1,a,r,s2,l,d) in mini_batch])
-        reward_batch = np.array([r for (s1,a,r,s2,l,d) in mini_batch])
-        done_batch = np.array([float(d) for (s1,a,r,s2,l,d) in mini_batch])
+        state_batch = torch.stack([s1 for (s1,a,r,s2,l,d) in mini_batch])  
+        next_state_batch = torch.stack([s2 for (s1,a,r,s2,l,d) in mini_batch])   
+        action_batch = torch.Tensor([a for (s1,a,r,s2,l,d) in mini_batch])
+        reward_batch = torch.Tensor([r for (s1,a,r,s2,l,d) in mini_batch])
+        done_batch = torch.Tensor([float(d) for (s1,a,r,s2,l,d) in mini_batch])
         
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
         
@@ -257,7 +254,8 @@ class Agent(object):
         masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
         masked_q_values = masked_q_values.reshape((self.batch_size, NUM_ACTIONS))
         actions = np.argmax(masked_q_values, axis=1)
-
+        
+        print('hi2')
         
         q_values_next_target = self.__predict_nograd(next_state_batch)
         target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
@@ -284,6 +282,7 @@ class Agent(object):
             self.target_estimator = copy.deepcopy(self.estimator)
             
         self.train_t += 1
+        print('hi3')
         
         if self.train_t % 10 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
@@ -317,7 +316,7 @@ class Agent(object):
         agent.target_estimator.load_state_dict(checkpoint['target_estimator'])
         
         agent.replay = checkpoint['replay']
-        agent.optimizer.load_state_dict(checkpoint['optimizer'])
+        agent.optimizer.load_state_dict(checkpoint['optimzier'])
         
     def save_checkpoint(self, path, filename='checkpoint.pt'):
         attr = {
@@ -361,14 +360,13 @@ class Estimator(nn.Module):
     def forward(self, X):
         return self.fc(X)
 
-def train(baselines, mlp_layers=[64,64], episodes=3000, lr=0.005, batch_size=128):
+def train(baselines, mlp_layers=[64,64], episodes=50, lr=0.001, batch_size=16):
     file = open('training.log', 'a')
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
     else:
         agent = Agent(learning_rate=lr, batch_size=batch_size, mlp_layers=mlp_layers, save_path=SAVE_PATH)
     
-    total_wins = 0
     for episode in range(episodes):
         player = Player(agent=agent)
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
@@ -378,13 +376,11 @@ def train(baselines, mlp_layers=[64,64], episodes=3000, lr=0.005, batch_size=128
         
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
-        total_wins += player.win
         
         for i in range(len(history)):
             agent.feed(history[i])
-        if episode % 100 == 0:
+        if episode % 10 == 0:
             print(f'episode {episode} done')
-            print(f'Winning rate: {total_wins / (episode + 1)}')
 
 baselines = [baseline0_ai] * 5
 train(baselines=baselines)
