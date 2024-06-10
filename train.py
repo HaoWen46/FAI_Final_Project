@@ -106,14 +106,15 @@ class Player(BasePokerPlayer):
             self.community_cards.flatten(),
             self.position
         ])
+        state = torch.from_numpy(state).float()
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
         
         if self.history:
-            self.history[-1][3] = torch.from_numpy(state).float()
+            self.history[-1][3] = state
             
-        self.history.append([torch.from_numpy(state).float(), best_action, 0, None, legal_actions, False])
+        self.history.append([state, best_action, 0, None, legal_actions, False])
         return action_set[best_action], amount
 
     def receive_game_start_message(self, game_info):
@@ -157,7 +158,7 @@ class Player(BasePokerPlayer):
     def receive_round_result_message(self, winners, hand_info, round_state):
         if self.history:
             self.history[-1][2] = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
-            self.history[-1][3] = torch.from_numpy(np.zeros(NUM_STATES)).float()
+            self.history[-1][3] = torch.zeros(NUM_STATES)
             self.history[-1][5] = True
 
 class Agent(object):
