@@ -208,12 +208,12 @@ class Agent(object):
     def __predict_nograd(self, state):
         with torch.no_grad():
             state = torch.from_numpy(state).float().to(self.device)
+            print('hi')
             q_values = self.estimator(state).cpu().numpy()
         return q_values
     
     def predict(self, state, legal_actions):
         q_values = self.__predict_nograd(state)
-        print('hi')
         masked_q_values = -np.inf * np.ones(NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values[legal_actions]
         return masked_q_values[legal_actions]
@@ -347,7 +347,7 @@ class Estimator(nn.Module):
         self.mlp_layers = mlp_layers
         
         layer_dims = [num_states] + self.mlp_layers
-        fc = []
+        fc = [nn.BatchNorm1d(layer_dims[0])]
         for i in range(1, len(layer_dims)):
             fc.append(nn.Linear(layer_dims[i - 1], layer_dims[i], bias=True))
             fc.append(nn.Tanh())
