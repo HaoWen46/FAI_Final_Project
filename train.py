@@ -207,9 +207,10 @@ class Agent(object):
     
     def __predict_nograd(self, state):
         with torch.no_grad():
-            print('hi')
             state = torch.from_numpy(state).float().to(self.device)
+            print("hello")
             q_values = self.estimator(state).cpu().numpy()
+            print('hi')
         return q_values
     
     def predict(self, state, legal_actions):
