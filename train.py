@@ -260,15 +260,13 @@ class Agent(object):
         q_values_next_target = self.__predict_nograd(next_state_batch)
         target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
         
-        state_batch = np.array(state_batch)
-        
         self.optimizer.zero_grad()
         
         self.estimator.train()
         
-        state_batch = torch.from_numpy(state_batch).float().to(self.device)
-        action_batch = torch.from_numpy(action_batch).long().to(self.device)
-        target_batch = torch.from_numpy(target_batch).float().to(self.device)
+        state_batch = state_batch.float().to(self.device)
+        action_batch = action_batch.long().to(self.device)
+        target_batch = target_batch.float().to(self.device)
         
         Q = torch.gather(self.estimator(state_batch), dim=-1, index=action_batch.unsqueeze(-1)).squeeze(-1)
         
