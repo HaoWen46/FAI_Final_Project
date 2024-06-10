@@ -104,6 +104,7 @@ class Player(BasePokerPlayer):
             self.position,
             self.stack
         ])
+        print("hi")
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
@@ -112,7 +113,6 @@ class Player(BasePokerPlayer):
             self.history[-1][3] = state
             
         self.history.append((state, best_action, 0, None, legal_actions, False))
-        print("hi")
         return action_set[best_action], amount
 
     def receive_game_start_message(self, game_info):
