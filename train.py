@@ -245,12 +245,12 @@ class Agent(object):
         done_batch = np.array([float(d) for (s1,a,r,s2,l,d) in mini_batch])
         
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
+        print('hi')
         
         legal_actions = []
         for b in range(self.batch_size):
             legal_actions.extend([b * NUM_ACTIONS + i for i in legal_batch[b]])
         
-        print('hi')
         q_values_next = self.__predict_nograd(state_batch)
         masked_q_values = -np.inf * np.ones(self.batch_size * NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
