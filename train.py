@@ -241,9 +241,7 @@ class Agent(object):
         next_state_batch = torch.stack([s2 for (s1,a,r,s2,l,d) in mini_batch])   
         action_batch = torch.Tensor([a for (s1,a,r,s2,l,d) in mini_batch])
         reward_batch = torch.Tensor([r for (s1,a,r,s2,l,d) in mini_batch])
-        done_batch = torch.Tensor([d for (s1,a,r,s2,l,d) in mini_batch])
-        
-        print(type(done_batch[0]))
+        done_batch = torch.Tensor([d for (s1,a,r,s2,l,d) in mini_batch]).bool()
         
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
         
