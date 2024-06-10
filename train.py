@@ -113,7 +113,7 @@ class Player(BasePokerPlayer):
         if self.history:
             self.history[-1][3] = state
             
-        self.history.append((state, best_action, 0, None, legal_actions, False))
+        self.history.append([state, best_action, 0, None, legal_actions, False])
         return action_set[best_action], amount
 
     def receive_game_start_message(self, game_info):
