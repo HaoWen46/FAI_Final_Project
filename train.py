@@ -207,12 +207,12 @@ class Agent(object):
     
     def __predict_nograd(self, state):
         with torch.no_grad():
+            print('hi')
             state = torch.from_numpy(state).float().to(self.device)
             q_values = self.estimator(state).cpu().numpy()
         return q_values
     
     def predict(self, state, legal_actions):
-        print('hi')
         q_values = self.__predict_nograd(state)
         masked_q_values = -np.inf * np.ones(NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values[legal_actions]
