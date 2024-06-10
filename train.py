@@ -241,7 +241,7 @@ class Agent(object):
         next_state_batch = torch.stack([s2 for (s1,a,r,s2,l,d) in mini_batch])   
         action_batch = torch.Tensor([a for (s1,a,r,s2,l,d) in mini_batch])
         reward_batch = torch.Tensor([r for (s1,a,r,s2,l,d) in mini_batch])
-        done_batch = torch.Tensor([d for (s1,a,r,s2,l,d) in mini_batch]).bool()
+        done_batch = torch.Tensor([float(d) for (s1,a,r,s2,l,d) in mini_batch])
         
         legal_batch = [l for (s1,a,r,s2,l,d) in mini_batch]
         
@@ -258,7 +258,7 @@ class Agent(object):
         print('hi2')
         
         q_values_next_target = self.__predict_nograd(next_state_batch)
-        target_batch = reward_batch + np.invert(done_batch).astype(np.float32) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
+        target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
         
         state_batch = np.array(state_batch)
         
