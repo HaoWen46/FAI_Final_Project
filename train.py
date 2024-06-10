@@ -221,6 +221,7 @@ class Agent(object):
         return masked_q_values
     
     def step(self, state, legal_actions):
+        print('hi')
         q_values = self.predict(state, legal_actions)
         epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * (self.epsilon_decay ** self.total_t)
         if random.random() < epsilon:
@@ -230,10 +231,10 @@ class Agent(object):
         return action
     
     def feed(self, transition):
+        print('hi')
         state, action, reward, next_state, legal_actions, done = tuple(transition)
         self.replay.append((state, action, reward, next_state, legal_actions, done))
         self.total_t += 1
-        print('hi')
         if self.total_t >= self.batch_size:
             self.train()
         
