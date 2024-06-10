@@ -73,6 +73,7 @@ class Player(BasePokerPlayer):
         return (13 * SUITS.index(card[0])) + RANKS.index(card[1])
         
     def declare_action(self, valid_actions, hole_card, round_state):
+        print("declared 1")
         self.stack_size = next(player['stack'] for player in round_state['seats'] if player['uuid'] == self.uuid)
         legal_actions = [0, 1]
         increment = 0.7 # increase in each level of raise
@@ -103,6 +104,7 @@ class Player(BasePokerPlayer):
         best_action = self.agent.step(state, legal_actions)
         if best_action >= 2:
             amount = best_action * increment
+        print("decalred 2")
         
         if self.history:
             self.history[-1][3] = state
