@@ -335,7 +335,7 @@ def train(baselines, mlp_layers=[64,64], episodes=1000, lr=0.001, batch_size=500
     else:
         agent = Agent(learning_rate=lr, batch_size=batch_size, mlp_layers=mlp_layers)
     
-    for episode in episodes:
+    for episode in range(episodes):
         player = Player(agent=agent)
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_palyer(name='p0', algorithm=player)
