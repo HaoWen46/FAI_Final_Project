@@ -109,7 +109,6 @@ class Player(BasePokerPlayer):
         if best_action >= 2:
             amount = best_action * increment
         
-        print("hi")
         if self.history:
             self.history[-1][3] = state
             
@@ -201,6 +200,7 @@ class Agent(object):
         return masked_q_values[legal_actions]
     
     def step(self, state, legal_actions):
+        print('hi')
         q_values = self.predict(state)
         epsilon = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * (self.epsilon_decay ** self.total_t)
         if random.random() < epsilon:
