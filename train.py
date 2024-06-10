@@ -82,9 +82,9 @@ class Player(BasePokerPlayer):
             for i in range(2, NUM_ACTIONS):
                 if min_amount <= increment * i * self.max_bet <= max_amount:
                     legal_actions.append(i)
-        print("hello")
         
         hand_strength = HandEvaluator.eval_hand(hole_card, round_state['community_card'])
+        print("hello")
         
         pot_size = round_state['pot']['main']['amount']
         if self.uuid in round_state['pot']['side']['eligibles']:
