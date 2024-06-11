@@ -199,12 +199,14 @@ class Agent(object):
         self.loss_value = 0
     
     def __predict_nograd(self, features, image, use_target=False):
-        estimator = self.target_estimator if use_target == True else self.estimator
-        print('hi')
         with torch.no_grad():
             features = features.float().to(self.device)
             image = image.float().to(self.device)
-            q_values = estimator(features, image).cpu().numpy()
+            if use_target == True:
+                q_values = self.target_estimator(features=features, image=image).cpu().numpy()
+            else:
+                q_values = self.estimator(features=features, image=image).cpu().numpy()
+            print('hi')
         return q_values
     
     def predict(self, features, image, legal_actions):
