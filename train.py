@@ -168,7 +168,6 @@ class Agent(object):
                  discount=0.9,
                  batch_size=64,
                  train_freq=1,
-                 mlp_layers=None,
                  learning_rate=0.001,
                  save_path=None,
                  save_freq=1000):
@@ -280,8 +279,8 @@ class Agent(object):
             self.target_estimator.load_state_dict(self.estimator.state_dict())
         
         if self.train_t % 500 == 0:
-            print(f'iteration {self.train_t}, Loss = {loss.item()}')
             self.loss_value = loss.item()
+            print(f'iteration {self.train_t}, Loss = {loss.item()}')
         
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
@@ -299,7 +298,7 @@ class Agent(object):
             train_freq=checkpoint['train_freq'],
             learning_rate=checkpoint['learning_rate'],
             save_path=checkpoint['save_path'],
-            save_freq=checkpoint['save_freq']            
+            save_freq=checkpoint['save_freq']       
         )
         agent.device = checkpoint['device']
         
@@ -311,6 +310,7 @@ class Agent(object):
         agent.target_estimator = Estimator(features_shape=NUM_FEATURES)
         agent.target_estimator.load_state_dict(checkpoint['target_estimator'])
         
+        agent.loss_value = checkpoint['loss_value']
         agent.replay = checkpoint['replay']
         agent.optimizer.load_state_dict(checkpoint['optimizer'])
         
@@ -335,7 +335,8 @@ class Agent(object):
             'optimizer': self.optimizer.state_dict(),
             'device': self.device,
             'save_path': self.save_path,
-            'save_freq': self.save_freq
+            'save_freq': self.save_freq,
+            'loss': self.loss_value
         }
         torch.save(attr, filename)
 
@@ -401,6 +402,7 @@ def train(baselines, episodes=1000, lr=0.001, batch_size=64):
         
         for i in range(len(history)):
             agent.feed(history[i])
+            
         if episode % 500 == 0:
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
@@ -410,5 +412,5 @@ def train(baselines, episodes=1000, lr=0.001, batch_size=64):
         for loss in losses:
             file.write(f'{loss}\n')
 
-baselines = [baseline0_ai]
+baselines = [baseline1_ai]
 train(baselines=baselines)
