@@ -342,7 +342,7 @@ class Estimator(nn.Module):
         
         self.fc1 = nn.Linear(features_shape, 64)
         self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128 + 128, 256)
+        self.fc3 = nn.Linear(256, 256)
         self.fc4 = nn.Linear(256, 128)
         
         self.advantage_fc = nn.Linear(128, 64)
