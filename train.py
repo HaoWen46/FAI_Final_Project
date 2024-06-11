@@ -373,7 +373,7 @@ class Estimator(nn.Module):
         
         value = nn.functional.elu(self.value_fc(z))
         value = self.value(value)
-        return value + (adavantage - adavantage.mean(dim=1, keepdim=True))
+        return value + (adavantage - adavantage.mean(dim=-1, keepdim=True))
 
 def train(baselines, episodes=10, lr=0.001, batch_size=5):
     losses = []
