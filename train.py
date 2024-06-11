@@ -107,9 +107,9 @@ class DDDQNPlayer(BasePokerPlayer):
             [self.hand_strength],
             self.street
         ])
+        print('hi')
         features = torch.from_numpy(features).float()
         image = torch.from_numpy(image).float()
-        print('hi')
         
         best_action = self.agent.step(features, image, legal_actions)
         if best_action >= 2:
