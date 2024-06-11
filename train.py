@@ -95,6 +95,8 @@ class DDDQNPlayer(BasePokerPlayer):
                 pot_size += side['amount']
         
         aggression = self.opponent_raise_count / self.opponent_move_count if self.opponent_move_count else 0
+        
+        print('hi')
                 
         image = np.reshape(self.__cards_to_image(hole_card, round_state['community_card']), (17 * 17))
         
@@ -107,7 +109,6 @@ class DDDQNPlayer(BasePokerPlayer):
             [self.hand_strength],
             self.street
         ])
-        print('hi')
         features = torch.from_numpy(features).float()
         image = torch.from_numpy(image).float()
         
