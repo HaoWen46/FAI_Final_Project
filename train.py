@@ -363,9 +363,7 @@ class Estimator(nn.Module):
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
         
-        print('1')
-        z = torch.cat((x, y), dim=1)
-        print('2')
+        z = np.concatenate((x, y), dim=1)
         print(z.shape)
         z = nn.functional.elu(self.fc3(z))
         z = nn.functional.elu(self.fc4(z))
