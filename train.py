@@ -361,6 +361,8 @@ class Estimator(nn.Module):
         
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
+        
+        x = x.reshape(x.shape[:-3] + (128))
         print(x.shape, y.shape)
         
         z = np.concatenate((x, y), axis=1)
