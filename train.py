@@ -151,8 +151,8 @@ class DDDQNPlayer(BasePokerPlayer):
         if self.last_features is not None:
             current_stack = next(seat['stack'] for seat in round_state['seats'] if seat['uuid'] == self.uuid)
             reward = current_stack - self.start_stack
-            features = torch.zeros(NUM_FEATURES)
-            image = torch.zeros((17, 17))
+            features = torch.zeros(NUM_FEATURES).float()
+            image = torch.zeros(289).float()
             self.history.append((self.last_features, self.last_image, self.last_action, reward, features, image, self.last_legal_actions, True))
 
 class Agent(object):
