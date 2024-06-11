@@ -358,7 +358,7 @@ class Estimator(nn.Module):
         x = nn.functional.elu(self.conv2(x))
         x = nn.functional.elu(self.conv3(x))
         
-        x = x.view(x.size(0), 128)
+        x = x.view(-1, 128)
         
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
