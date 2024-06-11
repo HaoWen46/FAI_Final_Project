@@ -362,12 +362,13 @@ class Estimator(nn.Module):
         y = nn.functional.elu(self.fc2(y))
         
         x = x.reshape(x.shape[:-3] + (128,))
-        print(x.shape, y.shape)
         
         z = np.concatenate((x, y), axis=x.shape[-1])
         print(z.shape)
         z = nn.functional.elu(self.fc3(z))
+        print('1')
         z = nn.functional.elu(self.fc4(z))
+        print('2')
         adavantage = nn.functional.elu(self.advantage_fc(z))
         print('3')
         value = nn.functional.elu(self.value_fc(z))
