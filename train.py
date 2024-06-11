@@ -96,9 +96,9 @@ class DDDQNPlayer(BasePokerPlayer):
         
         aggression = self.opponent_raise_count / self.opponent_move_count if self.opponent_move_count else 0
         
-        print('hi')
                 
         image = np.reshape(self.__cards_to_image(hole_card, round_state['community_card']), (17 * 17))
+        print('hi')
         
         features = np.concatenate([
             [pot_size],
