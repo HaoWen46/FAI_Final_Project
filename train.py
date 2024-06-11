@@ -240,6 +240,7 @@ class Agent(object):
         done_batch = torch.Tensor([float(d) for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         
         legal_batch = [l for (f1,i1,a,r,f2,i2,l,d) in mini_batch]
+        print('hi')
         
         legal_actions = []
         for b in range(self.batch_size):
@@ -364,16 +365,13 @@ class Estimator(nn.Module):
         y = nn.functional.elu(self.fc2(y))
         
         z = torch.cat((x, y), dim=-1)
-        print(z.shape)
         z = nn.functional.elu(self.fc3(z))
-        print('1')
         z = nn.functional.elu(self.fc4(z))
-        print('2')
+        
         adavantage = nn.functional.elu(self.advantage_fc(z))
-        print('3')
-        value = nn.functional.elu(self.value_fc(z))
-        print('4')
         adavantage = self.advantage(adavantage)
+        
+        value = nn.functional.elu(self.value_fc(z))
         value = self.value(value)
         return value + (adavantage - adavantage.mean(dim=1, keepdim=True))
 
