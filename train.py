@@ -363,15 +363,17 @@ class Estimator(nn.Module):
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
         
+        print('1')
         z = torch.cat((x, y), dim=1)
         z = nn.functional.elu(self.fc3(z))
         z = nn.functional.elu(self.fc4(z))
-        
+        print('2')
         adavantage = nn.functional.elu(self.advantage_fc(z))
+        print('3')
         value = nn.functional.elu(self.value_fc(z))
+        print('4')
         adavantage = self.advantage(adavantage)
         value = self.value(value)
-        print('hi')
         return value + (adavantage - adavantage.mean(dim=1, keepdim=True))
 
 def train(baselines, episodes=100, lr=0.001, batch_size=64):
