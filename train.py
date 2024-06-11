@@ -354,6 +354,7 @@ class Estimator(nn.Module):
     def forward(self, features, image):
         x = image.view(-1, 1, 17, 17)
         x = x.reshape(x.shape[:-1] + (1, 17, 17))
+        print(x.shape)
         
         x = nn.functional.elu(self.conv1(x))
         x = nn.functional.elu(self.conv2(x))
