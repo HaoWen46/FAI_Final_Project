@@ -109,6 +109,7 @@ class DDDQNPlayer(BasePokerPlayer):
         ])
         features = torch.from_numpy(features).float()
         image = torch.from_numpy(image).float()
+        print('hi')
         
         best_action = self.agent.step(features, image, legal_actions)
         if best_action >= 2:
@@ -226,7 +227,6 @@ class Agent(object):
         self.replay.append(transition)
         self.total_t += 1
         if self.total_t >= self.pretrain_steps:
-            print('hi')
             self.train()
         
     def train(self):
