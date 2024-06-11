@@ -365,8 +365,7 @@ class Estimator(nn.Module):
         
         z = np.concatenate((x, y), axis=x.shape[-1])
         print(z.shape)
-        z = self.fc3(z)
-        print('0')
+        print(self.fc3.in_features)
         z = nn.functional.elu(self.fc3(z))
         print('1')
         z = nn.functional.elu(self.fc4(z))
