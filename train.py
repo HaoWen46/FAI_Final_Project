@@ -351,9 +351,8 @@ class Estimator(nn.Module):
         self.value_fc = nn.Linear(128, 64)
         self.value = nn.Linear(64, 1)
         
-    def forward(self, scalar, features):
-        print('hi')
-        x = scalar.view(-1, 1, 17, 17)
+    def forward(self, features, image):
+        x = image.view(-1, 1, 17, 17)
         
         x = nn.functional.elu(self.conv1(x))
         x = nn.functional.elu(self.conv2(x))
@@ -372,6 +371,7 @@ class Estimator(nn.Module):
         value = nn.functional.elu(self.value_fc(z))
         adavantage = self.advantage(adavantage)
         value = self.value(value)
+        print('hi')
         
         return value + (adavantage - adavantage.mean(dim=1, keepdim=True))
 
