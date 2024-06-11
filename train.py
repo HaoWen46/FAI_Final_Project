@@ -256,6 +256,7 @@ class Agent(object):
         actions = np.argmax(masked_q_values, axis=1)
         
         q_values_next_target = self.__predict_nograd(next_feature_batch, next_image_batch, use_target=True)
+        q_values_next_target = self.
         target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
         
         self.optimizer.zero_grad()
@@ -313,6 +314,8 @@ class Agent(object):
         
         agent.replay = checkpoint['replay']
         agent.optimizer.load_state_dict(checkpoint['optimizer'])
+        
+        agent.criterion = nn.MSELoss()
         
     def save_checkpoint(self, path, filename='checkpoint.pt'):
         attr = {
@@ -400,9 +403,9 @@ def train(baselines, episodes=1000, lr=0.001, batch_size=64):
         for i in range(len(history)):
             agent.feed(history[i])
         if episode % 500 == 0:
-            losses.append(agent.loss_value)
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
+            losses.append(agent.loss_value)
     
     with open('losses.log', 'a') as file:
         for loss in losses:
