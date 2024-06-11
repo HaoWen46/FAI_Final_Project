@@ -40,7 +40,7 @@ NUM_FEATURES = 10
 9. river
 """
 
-NUM_ACTIONS = 
+NUM_ACTIONS = 8
 action_set = {
     0: 'fold',
     1: 'call',
