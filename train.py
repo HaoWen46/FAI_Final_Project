@@ -74,7 +74,6 @@ class DDDQNPlayer(BasePokerPlayer):
         for i in range(len(cards)):
             images[i] = np.pad(np.zeros((4, 13)), ((6, 7), (2, 2)), 'constant', constant_values=0)
             images[i][SUITS.index(cards[i][0]) + 6][RANKS.index(cards[i][1]) + 2] = 1
-            print('hi')
         images[7] = images[:7].sum(axis=0)
         return np.swapaxes(images, 0, 2)[:, :, -1:]
         
@@ -96,7 +95,6 @@ class DDDQNPlayer(BasePokerPlayer):
         
         aggression = self.opponent_raise_count / self.opponent_move_count if self.opponent_move_count else 0
         
-                
         image = np.reshape(self.__cards_to_image(hole_card, round_state['community_card']), (17 * 17))
         
         features = np.concatenate([
@@ -112,6 +110,7 @@ class DDDQNPlayer(BasePokerPlayer):
         image = torch.from_numpy(image).float()
         
         best_action = self.agent.step(features, image, legal_actions)
+        print('hi')
         if best_action >= 2:
             min_amount = valid_actions[2]['amount']['min']
             max_amount = valid_actions[2]['amount']['max']
