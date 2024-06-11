@@ -206,7 +206,6 @@ class Agent(object):
                 q_values = self.target_estimator(features=features, image=image).cpu().numpy()
             else:
                 q_values = self.estimator(features=features, image=image).cpu().numpy()
-            print('hi')
         return q_values
     
     def predict(self, features, image, legal_actions):
@@ -367,6 +366,7 @@ class Estimator(nn.Module):
         z = torch.cat((x, y), dim=1)
         z = nn.functional.elu(self.fc3(z))
         z = nn.functional.elu(self.fc4(z))
+        print('hi')
         
         adavantage = nn.functional.elu(self.advantage_fc(z))
         value = nn.functional.elu(self.value_fc(z))
