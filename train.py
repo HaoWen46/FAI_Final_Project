@@ -206,6 +206,7 @@ class Agent(object):
                 q_values = self.target_estimator(features=features, image=image).cpu().numpy()
             else:
                 q_values = self.estimator(features=features, image=image).cpu().numpy()
+        print('hi')
         return q_values
     
     def predict(self, features, image, legal_actions):
@@ -240,7 +241,6 @@ class Agent(object):
         done_batch = torch.Tensor([float(d) for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         
         legal_batch = [l for (f1,i1,a,r,f2,i2,l,d) in mini_batch]
-        print('hi')
         
         legal_actions = []
         for b in range(self.batch_size):
