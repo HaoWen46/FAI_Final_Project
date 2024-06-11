@@ -358,13 +358,15 @@ class Estimator(nn.Module):
         x = nn.functional.elu(self.conv2(x))
         x = nn.functional.elu(self.conv3(x))
         
+        x = x.reshape(x.shape[:-3] + (128,))
+        
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
         
-        x = x.reshape(x.shape[:-3] + (128,))
-        
         z = np.concatenate((x, y), axis=x.shape[-1])
         print(z.shape)
+        z = self.fc3(z)
+        print('0')
         z = nn.functional.elu(self.fc3(z))
         print('1')
         z = nn.functional.elu(self.fc4(z))
