@@ -72,10 +72,9 @@ class DDDQNPlayer(BasePokerPlayer):
         cards = hole_cards + community_cards
         images = np.zeros((8, 17, 17))
         for i in range(len(cards)):
-            a = np.zeros(4, 13)
-            images[i] = np.pad(a, ((6, 7), (2, 2)), 'constant', constant_values=0)
-            print('hi')
+            images[i] = np.pad(np.zeros((4, 13)), ((6, 7), (2, 2)), 'constant', constant_values=0)
             images[i][SUITS.index(cards[i][0]) + 6][RANKS.index(cards[i][1]) + 2] = 1
+            print('hi')
         images[7] = images[:7].sum(axis=0)
         return np.swapaxes(images, 0, 2)[:, :, -1:]
         
