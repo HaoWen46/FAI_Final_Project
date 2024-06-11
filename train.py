@@ -40,14 +40,16 @@ NUM_FEATURES = 10
 9. river
 """
 
-NUM_ACTIONS = 6
+NUM_ACTIONS = 8
 action_set = {
     0: 'fold',
     1: 'call',
     2: 'raise',
     3: 'raise',
     4: 'raise',
-    5: 'raise'
+    5: 'raise',
+    6: 'raise',
+    7: 'raise'
 }
 
 class DDDQNPlayer(BasePokerPlayer):
@@ -256,11 +258,9 @@ class Agent(object):
         actions = np.argmax(masked_q_values, axis=1)
         
         q_values_next_target = self.__predict_nograd(next_feature_batch, next_image_batch, use_target=True)
-        q_values_next_target = self.
         target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
         
         self.optimizer.zero_grad()
-        
         self.estimator.train()
         
         feature_batch = feature_batch.float().to(self.device)
@@ -272,13 +272,12 @@ class Agent(object):
         loss = self.criterion(Q, target_batch)
         loss.backward()
         self.optimizer.step()
-        
         self.estimator.eval()
         
-        if self.train_t % self.update_target_freq == 0:
-            self.target_estimator = copy.deepcopy(self.estimator)
-            
         self.train_t += 1
+        
+        if self.train_t % self.update_target_freq == 0:
+            self.target_estimator.load_state_dict(self.estimator.state_dict())
         
         if self.train_t % 500 == 0:
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
