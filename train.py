@@ -53,6 +53,7 @@ action_set = {
 class DDDQNPlayer(BasePokerPlayer):
     def __init__(self, agent):
         self.agent = agent
+        self.start_stack = 0
         self.opponent_raise_count = 0
         self.opponent_move_count = 0
         self.position = np.zeros(6)
@@ -116,7 +117,7 @@ class DDDQNPlayer(BasePokerPlayer):
             amount = min_amount + int((max_amount - min_amount) * ((best_action - 2) / (NUM_ACTIONS - 2)))
         
         if self.last_features != None:
-            self.history.append((self.last_features, self.last_image, self.last_action, features, image, self.last_legal_actions, False))
+            self.history.append((self.last_features, self.last_image, self.last_action, 0, features, image, self.last_legal_actions, False))
             
         self.last_features = features
         self.last_image = image
@@ -130,6 +131,7 @@ class DDDQNPlayer(BasePokerPlayer):
 
     def receive_round_start_message(self, round_count, hole_card, seats):
         self.hand_strength = HoleCardEstimator.eval(hole_cards=hole_card)
+        self.start_stack = next(seat['stack'] for seat in seats if seat['uuid'] == self.uuid)
 
     def receive_street_start_message(self, street, round_state):
         self.street.fill(0)
@@ -147,9 +149,11 @@ class DDDQNPlayer(BasePokerPlayer):
                 self.win = 1
         
         if self.last_features is not None:
+            current_stack = next(seat['stack'] for seat in round_state['seats'] if seat['uuid'] == self.uuid)
+            reward = current_stack - self.start_stack
             features = torch.zeros(NUM_FEATURES)
             image = torch.zeros((17, 17))
-            self.history.append((self.last_features, self.last_image, self.last_action, features, image, self.last_legal_actions, True))
+            self.history.append((self.last_features, self.last_image, self.last_action, reward, features, image, self.last_legal_actions, True))
 
 class Agent(object):
     def __init__(self,
