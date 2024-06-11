@@ -170,7 +170,7 @@ class Agent(object):
                  train_freq=1,
                  learning_rate=0.001,
                  save_path=None,
-                 save_freq=10000):
+                 save_freq=1000):
         
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         
@@ -272,6 +272,7 @@ class Agent(object):
         loss.backward()
         self.optimizer.step()
         self.estimator.eval()
+        self.loss_value = loss.item()
         
         self.train_t += 1
         
@@ -279,7 +280,6 @@ class Agent(object):
             self.target_estimator.load_state_dict(self.estimator.state_dict())
         
         if self.train_t % 500 == 0:
-            self.loss_value = loss.item()
             print(f'iteration {self.train_t}, Loss = {loss.item()}')
         
         if self.save_path and self.train_t % self.save_freq == 0:
@@ -381,7 +381,7 @@ class Estimator(nn.Module):
         value = self.value(value)
         return value + (adavantage - adavantage.mean(dim=-1, keepdim=True))
 
-def train(baselines, episodes=1000, lr=0.001, batch_size=64):
+def train(baselines, episodes=2500, lr=0.001, batch_size=64):
     losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
@@ -403,7 +403,7 @@ def train(baselines, episodes=1000, lr=0.001, batch_size=64):
         for i in range(len(history)):
             agent.feed(history[i])
             
-        if episode % 500 == 0:
+        if episode % 100 == 0:
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
             losses.append(agent.loss_value)
