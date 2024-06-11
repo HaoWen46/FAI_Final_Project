@@ -352,7 +352,7 @@ class Estimator(nn.Module):
         self.value = nn.Linear(64, 1)
         
     def forward(self, features, image):
-        print(x.shape)
+        print(image.shape)
         x = image.view(-1, 1, 17, 17)
         
         x = nn.functional.elu(self.conv1(x))
