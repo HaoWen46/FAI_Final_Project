@@ -359,7 +359,6 @@ class Estimator(nn.Module):
         x = nn.functional.elu(self.conv3(x))
         
         x = x.view(x.size(0), 128)
-        print('hi')
         
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
@@ -372,7 +371,7 @@ class Estimator(nn.Module):
         value = nn.functional.elu(self.value_fc(z))
         adavantage = self.advantage(adavantage)
         value = self.value(value)
-        
+        print('hi')
         return value + (adavantage - adavantage.mean(dim=1, keepdim=True))
 
 def train(baselines, episodes=100, lr=0.001, batch_size=64):
