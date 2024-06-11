@@ -70,8 +70,8 @@ class DDDQNPlayer(BasePokerPlayer):
         
     def __cards_to_image(self, hole_cards, community_cards):
         cards = hole_cards + community_cards
-        print('hi')
         images = np.zeros((8, 17, 17))
+        print('hi')
         for i in range(len(cards)):
             images[i] = np.pad(np.zeros(4, 13), ((6, 7), (2, 2)), 'constant', constant_values=0)
             images[i][SUITS.index(cards[i][0]) + 6][RANKS.index(cards[i][1]) + 2] = 1
