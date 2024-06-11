@@ -110,7 +110,6 @@ class DDDQNPlayer(BasePokerPlayer):
         image = torch.from_numpy(image).float()
         
         best_action = self.agent.step(features, image, legal_actions)
-        print('hi')
         if best_action >= 2:
             min_amount = valid_actions[2]['amount']['min']
             max_amount = valid_actions[2]['amount']['max']
@@ -200,7 +199,8 @@ class Agent(object):
         self.loss_value = 0
     
     def __predict_nograd(self, features, image, use_target=False):
-        estimator = self.target_estimator if use_target == True else self.estimator   
+        estimator = self.target_estimator if use_target == True else self.estimator
+        print('hi')
         with torch.no_grad():
             features = features.float().to(self.device)
             image = image.float().to(self.device)
