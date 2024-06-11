@@ -170,7 +170,7 @@ class Agent(object):
                  train_freq=1,
                  learning_rate=0.001,
                  save_path=None,
-                 save_freq=1000):
+                 save_freq=10000):
         
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         
