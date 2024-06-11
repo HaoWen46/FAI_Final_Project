@@ -359,6 +359,7 @@ class Estimator(nn.Module):
         x = nn.functional.elu(self.conv3(x))
         
         x = x.view(x.size(0), 128)
+        print('hi')
         
         y = nn.functional.elu(self.fc1(features))
         y = nn.functional.elu(self.fc2(y))
@@ -366,7 +367,6 @@ class Estimator(nn.Module):
         z = torch.cat((x, y), dim=1)
         z = nn.functional.elu(self.fc3(z))
         z = nn.functional.elu(self.fc4(z))
-        print('hi')
         
         adavantage = nn.functional.elu(self.advantage_fc(z))
         value = nn.functional.elu(self.value_fc(z))
