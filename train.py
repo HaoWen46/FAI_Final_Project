@@ -353,11 +353,11 @@ class Estimator(nn.Module):
         
     def forward(self, scalar, features):
         x = scalar.view(-1, 1, 17, 17)
+        print('hi')
         
         x = nn.functional.elu(self.conv1(x))
         x = nn.functional.elu(self.conv2(x))
         x = nn.functional.elu(self.conv3(x))
-        print('hi')
         
         x = x.view(x.size(0), 128)
         
