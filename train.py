@@ -235,7 +235,6 @@ class Agent(object):
         
     def train(self):
         mini_batch = self.replay.sample(batch_size=self.batch_size)
-        print([b[0] for b in mini_batch])
         feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
@@ -402,7 +401,7 @@ class ReplayBuffer(object):
             self.flag = 1
             
     def sample(self, batch_size):
-        n = self.replay_buffer_size if self.flag else self.index + 1
+        n = self.replay_buffer_size if self.flag else self.index
         indices = np.random.choice(n, size=batch_size, replace=True)
         return self.replay_buffer[indices]
 
