@@ -413,7 +413,7 @@ class ReplayBuffer(object):
         indices = np.random.choice(n, size=batch_size, replace=True)
         return self.replay_buffer[indices]
 
-def train(baselines, episodes=6000, lr=0.001, batch_size=128):
+def train(baselines, episodes=10000, lr=0.001, batch_size=128):
     losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
