@@ -24,7 +24,7 @@ SUITS = ('C', 'D', 'H', 'S')
 RANKS = ('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K')
 STREETS = ('preflop', 'flop', 'turn', 'river')
 
-SAVE_PATH = './checkpoint.pt'
+SAVE_PATH = './src/checkpoint.pt'
 NUM_FEATURES = 10
 """
 0. pot_size
@@ -285,7 +285,7 @@ class Agent(object):
             self.save_checkpoint(self.save_path)
             
     @classmethod
-    def from_checkpoint(cls, checkpoint: dict, replay_buffer_file='replay.npy'):
+    def from_checkpoint(cls, checkpoint: dict, replay_buffer_file='./src/replay.npy'):
         agent = cls(
             pretrain_steps=checkpoint['pretrain_steps'],
             update_target_freq=checkpoint['update_target_freq'],
@@ -319,7 +319,7 @@ class Agent(object):
         
         agent.criterion = nn.MSELoss()
         
-    def save_checkpoint(self, path, filename='checkpoint.pt', replay_buffer_file='replay.npy'):
+    def save_checkpoint(self, path, filename='checkpoint.pt', replay_buffer_file='./src/replay.npy'):
         attr = {
             'estimator': self.estimator.state_dict(),
             'target_estimator': self.target_estimator.state_dict(),
