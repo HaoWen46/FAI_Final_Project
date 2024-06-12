@@ -285,7 +285,7 @@ class Agent(object):
             self.save_checkpoint(self.save_path)
             
     @classmethod
-    def from_checkpoint(cls, checkpoint: dict):
+    def from_checkpoint(cls, checkpoint: dict, replay_buffer_file='replay.npy'):
         agent = cls(
             pretrain_steps=checkpoint['pretrain_steps'],
             update_target_freq=checkpoint['update_target_freq'],
@@ -307,7 +307,7 @@ class Agent(object):
         agent.replay = ReplayBuffer(checkpoint['replay_size'])
         agent.replay.flag = checkpoint['replay_flag']
         agent.replay.index = checkpoint['replay_index']
-        agent.replay.replay_buffer = checkpoint['replay_buffer'].to_numpy()
+        agent.replay.replay_buffer = np.load(replay_buffer_file, allow_pickle=True)
         
         agent.estimator = Estimator(features_shape=NUM_FEATURES)
         agent.estimator.load_state_dict(checkpoint['estimator'])
@@ -319,7 +319,7 @@ class Agent(object):
         
         agent.criterion = nn.MSELoss()
         
-    def save_checkpoint(self, path, filename='checkpoint.pt'):
+    def save_checkpoint(self, path, filename='checkpoint.pt', replay_buffer_file='replay.npy'):
         attr = {
             'estimator': self.estimator.state_dict(),
             'target_estimator': self.target_estimator.state_dict(),
@@ -341,10 +341,10 @@ class Agent(object):
             'loss': self.loss_value,
             'replay_flag': self.replay.flag,
             'replay_size': self.replay.replay_buffer_size,
-            'replay_index': self.replay.index,
-            'replay_buffer': torch.from_numpy(self.replay.replay_buffer)
+            'replay_index': self.replay.index
         }
         torch.save(attr, filename)
+        np.save(replay_buffer_file, self.replay.replay_buffer)
 
 class Estimator(nn.Module):
     def __init__(self, features_shape, image_shape=[17,17]):
