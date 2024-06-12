@@ -158,7 +158,7 @@ class DDDQNPlayer(BasePokerPlayer):
 
 class Agent(object):
     def __init__(self,
-                 replay_size=100000,
+                 replay_size=50000,
                  update_target_freq=1000,
                  pretrain_steps=512,
                  epsilon_start=1.0,
