@@ -235,7 +235,7 @@ class Agent(object):
         
     def train(self):
         mini_batch = self.replay.sample(batch_size=self.batch_size)
-        print([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
+        print([b[0] for b in mini_batch])
         feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
