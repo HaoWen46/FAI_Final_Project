@@ -80,8 +80,9 @@ class DDDQNPlayer(BasePokerPlayer):
         
     def declare_action(self, valid_actions, hole_card, round_state):
         dealer_btn = round_state['dealer_btn']
-        big_blind = round_state['big_blind_pos']
-        small_blind = round_state['small_blind_pos']
+        
+        #big_blind = round_state['big_blind_pos']
+        #small_blind = round_state['small_blind_pos']
         
         stack_size = next(seat['stack'] for seat in round_state['seats'] if seat['uuid'] == self.uuid)
         other_stacks = sum([seat['stack'] for seat in round_state['seats'] if seat['uuid'] != self.uuid])
@@ -111,6 +112,8 @@ class DDDQNPlayer(BasePokerPlayer):
         image = torch.from_numpy(image).float()
         
         best_action = self.agent.step(features, image, legal_actions)
+        
+        amount = 0
         if best_action >= 2:
             min_amount = valid_actions[2]['amount']['min']
             max_amount = valid_actions[2]['amount']['max']
@@ -320,6 +323,8 @@ class Agent(object):
         agent.optimizer.load_state_dict(checkpoint['optimizer'])
         
         agent.criterion = nn.MSELoss()
+        
+        return agent
         
     def save_checkpoint(self, path, filename=SAVE_PATH, replay_buffer_file='./src/replay.npy'):
         attr = {
