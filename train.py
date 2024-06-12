@@ -424,8 +424,8 @@ def train(baselines, episodes=3000, lr=0.001, batch_size=128):
         player = DDDQNPlayer(agent=agent)
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_player(name='p0', algorithm=player)
-        for i in range(len(baselines)):
-            config.register_player(name=f'p{i + 1}', algorithm=baselines[i]())
+        opponent = np.random.choice(baselines, 1)[0]
+        config.register_player(name=f'p1', algorithm=opponent())
         
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
@@ -443,5 +443,5 @@ def train(baselines, episodes=3000, lr=0.001, batch_size=128):
         for loss in losses:
             file.write(f'{loss}\n')
 
-baselines = [random_ai]
+baselines = [random_ai, call_ai]
 train(baselines=baselines)
