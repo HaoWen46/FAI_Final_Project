@@ -228,7 +228,7 @@ class Agent(object):
         return action
     
     def feed(self, transition: tuple):
-        self.replay.append(transition)
+        self.replay.save(transition)
         self.total_t += 1
         if self.total_t >= self.pretrain_steps:
             self.train()
