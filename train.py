@@ -154,6 +154,7 @@ class DDDQNPlayer(BasePokerPlayer):
         if self.last_features is not None:
             current_stack = next(seat['stack'] for seat in round_state['seats'] if seat['uuid'] == self.uuid)
             reward = current_stack - self.start_stack
+            reward = np.log(1.0 + reward) if reward >= 0 else -np.log(1.0 - reward)
             features = torch.zeros(NUM_FEATURES).float()
             image = torch.zeros(289).float()
             self.history.append((self.last_features, self.last_image, self.last_action, reward, features, image, self.last_legal_actions, True))
@@ -412,7 +413,7 @@ class ReplayBuffer(object):
         indices = np.random.choice(n, size=batch_size, replace=True)
         return self.replay_buffer[indices]
 
-def train(baselines, episodes=3000, lr=0.001, batch_size=128):
+def train(baselines, episodes=6000, lr=0.001, batch_size=128):
     losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
