@@ -2,7 +2,6 @@ from game.players import BasePokerPlayer
 from game.engine.hand_evaluator import HandEvaluator
 from game.game import setup_config, start_poker
 from src.hole_card_est import HoleCardEstimator
-from collections import deque
 import torch
 import torch.nn as nn
 import numpy as np
@@ -180,6 +179,8 @@ class Agent(object):
         self.target_estimator = Estimator(features_shape=NUM_FEATURES)
         self.target_estimator.eval()
         
+        self.replay = ReplayBuffer(replay_size)
+        self.replay_size = replay_size
         self.update_target_freq = update_target_freq
         self.pretrain_steps = pretrain_steps
         self.epsilon_start = epsilon_start
@@ -189,8 +190,6 @@ class Agent(object):
         self.batch_size = batch_size
         self.train_freq = train_freq
         self.learning_rate = learning_rate
-        
-        self.replay = deque(maxlen=replay_size)
         
         self.train_t = 0
         self.total_t = 0
@@ -235,7 +234,7 @@ class Agent(object):
             self.train()
         
     def train(self):
-        mini_batch = random.sample(self.replay, self.batch_size)
+        mini_batch = self.replay.sample(batch_size=self.batch_size)
         feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
@@ -305,13 +304,17 @@ class Agent(object):
         agent.total_t = checkpoint['total_t']
         agent.train_t = checkpoint['train_t']
         
+        agent.replay = ReplayBuffer(checkpoint['replay_size'])
+        agent.replay.flag = checkpoint['replay_flag']
+        agent.replay.index = checkpoint['replay_index']
+        agent.replay.replay_buffer = checkpoint['replay_buffer'].to_numpy()
+        
         agent.estimator = Estimator(features_shape=NUM_FEATURES)
         agent.estimator.load_state_dict(checkpoint['estimator'])
         agent.target_estimator = Estimator(features_shape=NUM_FEATURES)
         agent.target_estimator.load_state_dict(checkpoint['target_estimator'])
         
         agent.loss_value = checkpoint['loss_value']
-        agent.replay = checkpoint['replay']
         agent.optimizer.load_state_dict(checkpoint['optimizer'])
         
         agent.criterion = nn.MSELoss()
@@ -320,7 +323,6 @@ class Agent(object):
         attr = {
             'estimator': self.estimator.state_dict(),
             'target_estimator': self.target_estimator.state_dict(),
-            'replay': self.replay,
             'total_t': self.total_t,
             'train_t': self.train_t,
             'update_target_freq': self.update_target_freq,
@@ -336,7 +338,11 @@ class Agent(object):
             'device': self.device,
             'save_path': self.save_path,
             'save_freq': self.save_freq,
-            'loss': self.loss_value
+            'loss': self.loss_value,
+            'replay_flag': self.replay.flag,
+            'replay_size': self.replay.replay_buffer_size,
+            'replay_index': self.replay.index,
+            'replay_buffer': torch.from_numpy(self.replay.replay_buffer)
         }
         torch.save(attr, filename)
 
@@ -380,6 +386,24 @@ class Estimator(nn.Module):
         value = nn.functional.elu(self.value_fc(z))
         value = self.value(value)
         return value + (adavantage - adavantage.mean(dim=-1, keepdim=True))
+
+class ReplayBuffer(object):
+    def __init__(self, replay_buffer_size):
+        self.replay_buffer = np.empty(replay_buffer_size, dtype=tuple)
+        self.replay_buffer_size = replay_buffer_size
+        self.index = 0
+        self.flag = 0
+        
+    def save(self, transition):
+        self.replay_buffer[self.index] = transition
+        self.index = (self.index + 1) % self.replay_buffer_size
+        if self.index == 0:
+            self.flag = 1
+            
+    def sample(self, batch_size):
+        n = self.replay_buffer_size if self.flag else self.index + 1
+        indices = np.random.choice(n, size=batch_size, replace=True)
+        return self.replay_buffer[indices]
 
 def train(baselines, episodes=2500, lr=0.001, batch_size=64):
     losses = []
