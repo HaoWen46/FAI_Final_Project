@@ -166,7 +166,7 @@ class Agent(object):
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
-                 epsilon_decay=0.99,
+                 epsilon_decay=0.9995,
                  discount=0.9,
                  batch_size=64,
                  train_freq=1,
@@ -288,7 +288,10 @@ class Agent(object):
             self.save_checkpoint(self.save_path)
             
     @classmethod
-    def from_checkpoint(cls, checkpoint: dict, replay_buffer_file='./src/replay.npy'):
+    def from_checkpoint(cls, checkpoint: dict, replay_buffer_file='./src/replay.npy', save_freq=None):
+        if save_freq is None:
+            save_freq = checkpoint['save_freq']
+            
         agent = cls(
             pretrain_steps=checkpoint['pretrain_steps'],
             update_target_freq=checkpoint['update_target_freq'],
@@ -300,7 +303,7 @@ class Agent(object):
             train_freq=checkpoint['train_freq'],
             learning_rate=checkpoint['learning_rate'],
             save_path=checkpoint['save_path'],
-            save_freq=checkpoint['save_freq']       
+            save_freq=save_freq
         )
         agent.device = checkpoint['device']
         
