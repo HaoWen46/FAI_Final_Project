@@ -314,7 +314,7 @@ class Agent(object):
         agent.target_estimator = Estimator(features_shape=NUM_FEATURES)
         agent.target_estimator.load_state_dict(checkpoint['target_estimator'])
         
-        agent.loss_value = checkpoint['loss_value']
+        agent.loss_value = checkpoint['loss']
         agent.optimizer.load_state_dict(checkpoint['optimizer'])
         
         agent.criterion = nn.MSELoss()
