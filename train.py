@@ -235,7 +235,7 @@ class Agent(object):
         
     def train(self):
         mini_batch = self.replay.sample(batch_size=self.batch_size)
-        print(mini_batch.shape, mini_batch[0])
+        print(mini_batch.shape, len(mini_batch[0]))
         feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
@@ -426,7 +426,7 @@ def train(baselines, episodes=2500, lr=0.001, batch_size=64):
         total_wins += player.win
         
         for i in range(len(history)):
-            agent.feed(history[i])
+            agent.feed(tuple(history[i]))
             
         if episode % 100 == 0:
             print(f'episode {episode} done')
