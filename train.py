@@ -160,8 +160,8 @@ class DDDQNPlayer(BasePokerPlayer):
 
 class Agent(object):
     def __init__(self,
-                 replay_size=40000,
-                 update_target_freq=500,
+                 replay_size=50000,
+                 update_target_freq=50,
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
@@ -412,7 +412,7 @@ class ReplayBuffer(object):
         indices = np.random.choice(n, size=batch_size, replace=True)
         return self.replay_buffer[indices]
 
-def train(baselines, episodes=2500, lr=0.001, batch_size=64):
+def train(baselines, episodes=2500, lr=0.001, batch_size=128):
     losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
