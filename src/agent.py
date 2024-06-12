@@ -1,92 +1,147 @@
 from game.players import BasePokerPlayer
-from collections import deque
+from src.hole_card_est import HoleCardEstimator
 import numpy as np
 import random
 import torch
 import torch.nn as nn
 
-from baseline0 import setup_ai as baseline0_ai
-from baseline1 import setup_ai as baseline1_ai
-from baseline2 import setup_ai as baseline2_ai
-from baseline3 import setup_ai as baseline3_ai
-from baseline4 import setup_ai as baseline4_ai
-from baseline5 import setup_ai as baseline5_ai
-from baseline6 import setup_ai as baseline6_ai
-from baseline7 import setup_ai as baseline7_ai
+SUITS = ('C', 'D', 'H', 'S')
+RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
+STREETS = ('preflop', 'flop', 'turn', 'river')
+NUM_ACTIONS = 8
+action_set = {
+    0: 'fold',
+    1: 'call',
+    2: 'raise',
+    3: 'raise',
+    4: 'raise',
+    5: 'raise',
+    6: 'raise',
+    7: 'raise'
+}
 
 class Player(BasePokerPlayer):
+    NUM_FEATURES = 10
+    SAVE_PATH = './src/checkpoint.pt'
+    def __init__(self):
+        self.opponent_raise_count = 0
+        self.opponent_move_count = 0
+        self.hand_strength = 0
+        self.estimator = Estimator(features_shape=self.NUM_FEATURES)
+        self.estimator.load_state_dict(torch.load(self.SAVE_PATH)['estimator'])
+        self.estimator.eval()
+        
+    def __cards_to_image(self, hole_cards, community_cards):
+        cards = hole_cards + community_cards
+        images = np.zeros((8, 17, 17))
+        for i in range(len(cards)):
+            images[i] = np.pad(np.zeros((4, 13)), ((6, 7), (2, 2)), 'constant', constant_values=0)
+            images[i][SUITS.index(cards[i][0]) + 6][RANKS.index(cards[i][1]) + 2] = 1
+        images[7] = images[:7].sum(axis=0)
+        return np.swapaxes(images, 0, 2)[:, :, -1:]
+        
     def declare_action(self, valid_actions, hole_card, round_state):
-        call_action_info = valid_actions[1]
-        action, amount = call_action_info["action"], call_action_info["amount"]
-        return action, amount
+        dealer_btn = round_state['dealer_btn']
+        stack_size = next(seat['stack'] for seat in round_state['seats'] if seat['uuid'] == self.uuid)
+        other_stacks = sum([seat['stack'] for seat in round_state['seats'] if seat['uuid'] != self.uuid])
+        legal_actions = [0, 1]
+        if len(valid_actions) == 3:
+            legal_actions.extend([action for action in range(2, NUM_ACTIONS)])
+        
+        pot_size = round_state['pot']['main']['amount']
+        for side in round_state['pot']['side']:
+            if self.uuid in side['eligibles']:
+                pot_size += side['amount']
+        
+        aggression = self.opponent_raise_count / self.opponent_move_count if self.opponent_move_count else 0
+        
+        image = np.reshape(self.__cards_to_image(hole_card, round_state['community_card']), (17 * 17))
+        
+        features = np.concatenate([
+            [pot_size],
+            [dealer_btn],
+            [aggression],
+            [stack_size],
+            [other_stacks],
+            [self.hand_strength],
+            self.street
+        ])
+        features = torch.from_numpy(features).float()
+        image = torch.from_numpy(image).float()
+        
+        q_values = self.estimator(features=features, image=image)
+        masked_q_values = -np.inf * np.ones(NUM_ACTIONS)
+        masked_q_values[legal_actions] = q_values[legal_actions]
+        best_action = np.argmax(masked_q_values)
+        
+        amount = 0
+        if best_action >= 2:
+            min_amount = valid_actions[2]['amount']['min']
+            max_amount = valid_actions[2]['amount']['max']
+            amount = min_amount + int((max_amount - min_amount) * ((best_action - 2) / (NUM_ACTIONS - 2)))
+            
+        return action_set[best_action], amount
 
     def receive_game_start_message(self, game_info):
         pass
 
     def receive_round_start_message(self, round_count, hole_card, seats):
-        pass
+        self.hand_strength = HoleCardEstimator.eval(hole_cards=hole_card)
+        self.start_stack = next(seat['stack'] for seat in seats if seat['uuid'] == self.uuid)
 
     def receive_street_start_message(self, street, round_state):
-        pass
+        self.street.fill(0)
+        self.street[STREETS.index(street)] = 1
 
     def receive_game_update_message(self, action, round_state):
-        pass
+        if action['player_uuid'] != self.uuid:
+            self.opponent_move_count += 1
+            if action['action'] == 'raise':
+                self.opponent_raise_count += 1
 
     def receive_round_result_message(self, winners, hand_info, round_state):
         pass
-
-class Agent(nn.modules):
     
-# DQN, Deep Q-Network, using Reinforcement Learning
-def train(env, agent, baselines, episodes=1000, lr=0.001, batch_size=200, epsilon=1.0):
-    optimizer = torch.optim.Adam(agent.parameters(), lr=lr)
-    criterion = nn.MSELoss()
-    replay = deque()
-    
-    for episode in episodes:
-        state = env.reset()
-        state = torch.tensor(state, dtype=torch.float32)
-        done = False
-        epsiode_reward = 0
+class Estimator(nn.Module):
+    def __init__(self, features_shape, image_shape=[17,17]):
+        super(Estimator, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=5, stride=2)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5)
         
-        while not done:
-            qval = agent(state)
-            if random.random() < epsilon:
-                action_idx = np.random.randint(0, len(action_set))
-            else:
-                action_idx = np.argmax(qval.data.numpy())
-            action = action_set[action_idx]
-
-            next_state, reward, done = env.step(action)
-            next_state = torch.tensor(next_state, dtype=torch.float32)
-            epsiode_reward += reward
-            
-            replay.append((state, action, reward, next_state, done))
-            
-            state = next_state
-            
-            if len(replay) >= batch_size:
-                miniBatch = random.sample(replay, batch_size)
-                state1_batch = torch.cat([s1 for (s1,a,r,s2,d) in miniBatch])  
-                state2_batch = torch.cat([s2 for (s1,a,r,s2,d) in miniBatch])   
-                action_batch = torch.Tensor([a for (s1,a,r,s2,d) in miniBatch])
-                reward_batch = torch.Tensor([r for (s1,a,r,s2,d) in miniBatch])
-                done_batch = torch.Tensor([d for (s1,a,r,s2,d) in miniBatch])
-                
-                qvals = agent(state1_batch)
-                next_qvals = agent(state2_batch).detach()
-                max_next_qval = torch.max(next_qvals, dim=1)[0]
-                targets = reward_batch + (1 - done_batch) * max_next_qval
-                
-                actoin_qvals = qvals.gather(1, action_batch.unsqueeze(1)).squeeze(1)
-                loss = criterion(actoin_qvals, targets)
-                
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+        self.fc1 = nn.Linear(features_shape, 64)
+        self.fc2 = nn.Linear(64, 128)
+        self.fc3 = nn.Linear(256, 256)
+        self.fc4 = nn.Linear(256, 128)
         
-        if episode % 100 == 0:
-            print(f'Episode {episode}: Reward={epsiode_reward}')
+        self.advantage_fc = nn.Linear(128, 64)
+        self.advantage = nn.Linear(64, NUM_ACTIONS)
+        
+        self.value_fc = nn.Linear(128, 64)
+        self.value = nn.Linear(64, 1)
+        
+    def forward(self, features, image):
+        x = image.reshape(image.shape[:-1] + (1, 17, 17))
+        
+        x = nn.functional.elu(self.conv1(x))
+        x = nn.functional.elu(self.conv2(x))
+        x = nn.functional.elu(self.conv3(x))
+        
+        x = x.reshape(x.shape[:-3] + (128,))
+        
+        y = nn.functional.elu(self.fc1(features))
+        y = nn.functional.elu(self.fc2(y))
+        
+        z = torch.cat((x, y), dim=-1)
+        z = nn.functional.elu(self.fc3(z))
+        z = nn.functional.elu(self.fc4(z))
+        
+        adavantage = nn.functional.elu(self.advantage_fc(z))
+        adavantage = self.advantage(adavantage)
+        
+        value = nn.functional.elu(self.value_fc(z))
+        value = self.value(value)
+        return value + (adavantage - adavantage.mean(dim=-1, keepdim=True))
 
 def setup_ai():
     return Player()

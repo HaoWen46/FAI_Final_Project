@@ -4,7 +4,8 @@
 # otherwise, return HOLE_CARD_EST[x][y]
 
 class HoleCardEstimator:
-    HOLE_CARD_STRENGTH = {
+    __RANKS = {'2': 0, '3': 1, '4': 2, '5': 3, '6': 4, '7': 5, '8': 6, '9': 7, 'T': 8, 'J': 9, 'Q': 10, 'K': 11, 'A': 12}
+    __HOLE_CARD_STRENGTH = {
         'A': {'A': 0.85, 'K': 0.68, 'Q': 0.67, 'J': 0.66, 'T': 0.66, '9': 0.64, '8': 0.63, '7': 0.63, '6': 0.62, '5': 0.62, '4': 0.61, '3': 0.60, '2': 0.59},
         'K': {'A': 0.66, 'K': 0.83, 'Q': 0.64, 'J': 0.64, 'T': 0.63, '9': 0.61, '8': 0.60, '7': 0.59, '6': 0.58, '5': 0.58, '4': 0.57, '3': 0.56, '2': 0.55},
         'Q': {'A': 0.65, 'K': 0.62, 'Q': 0.80, 'J': 0.61, 'T': 0.61, '9': 0.59, '8': 0.58, '7': 0.56, '6': 0.55, '5': 0.55, '4': 0.54, '3': 0.53, '2': 0.52},
@@ -22,7 +23,7 @@ class HoleCardEstimator:
     
     @classmethod
     def eval(self, hole_cards: list):
-        ranks = sorted([hole_cards[0][1], hole_cards[1][1]])
-        if hole_cards[0][0] == hole_cards[1][0]:
-            ranks = ranks[::-1]
-        return self.HOLE_CARD_STRENGTH[ranks[0]][ranks[1]]
+        X = hole_cards[0][0] == hole_cards[1][0]
+        Y = self.__RANKS[hole_cards[0][1]] <= self.__RANKS[hole_cards[1][1]]
+        c1, c2 = [hole_cards[0][1], hole_cards[1][1]][::-int(X == Y) | 1]
+        return self.__HOLE_CARD_STRENGTH[c1][c2]

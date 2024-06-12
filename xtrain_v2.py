@@ -2,6 +2,7 @@ from game.players import BasePokerPlayer
 from game.engine.hand_evaluator import HandEvaluator
 from game.game import setup_config, start_poker
 from src.hole_card_est import HoleCardEstimator
+from collections import deque
 import torch
 import torch.nn as nn
 import numpy as np
@@ -21,10 +22,10 @@ from agents.call_player import setup_ai as call_ai
 from agents.random_player import setup_ai as random_ai
 
 SUITS = ('C', 'D', 'H', 'S')
-RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
+RANKS = ('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K')
 STREETS = ('preflop', 'flop', 'turn', 'river')
 
-SAVE_PATH = './src/checkpoint.pt'
+SAVE_PATH = './checkpoint.pt'
 NUM_FEATURES = 10
 """
 0. pot_size
@@ -57,6 +58,7 @@ class DDDQNPlayer(BasePokerPlayer):
         self.start_stack = 0
         self.opponent_raise_count = 0
         self.opponent_move_count = 0
+        self.position = np.zeros(6)
         self.street = np.zeros(4)
         self.hand_strength = 0
         self.last_image = None
@@ -157,8 +159,8 @@ class DDDQNPlayer(BasePokerPlayer):
 
 class Agent(object):
     def __init__(self,
-                 replay_size=40000,
-                 update_target_freq=500,
+                 replay_size=100000,
+                 update_target_freq=1000,
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
@@ -178,8 +180,6 @@ class Agent(object):
         self.target_estimator = Estimator(features_shape=NUM_FEATURES)
         self.target_estimator.eval()
         
-        self.replay = ReplayBuffer(replay_size)
-        self.replay_size = replay_size
         self.update_target_freq = update_target_freq
         self.pretrain_steps = pretrain_steps
         self.epsilon_start = epsilon_start
@@ -189,6 +189,8 @@ class Agent(object):
         self.batch_size = batch_size
         self.train_freq = train_freq
         self.learning_rate = learning_rate
+        
+        self.replay = deque(maxlen=replay_size)
         
         self.train_t = 0
         self.total_t = 0
@@ -227,13 +229,13 @@ class Agent(object):
         return action
     
     def feed(self, transition: tuple):
-        self.replay.save(transition)
+        self.replay.append(transition)
         self.total_t += 1
         if self.total_t >= self.pretrain_steps:
             self.train()
         
     def train(self):
-        mini_batch = self.replay.sample(batch_size=self.batch_size)
+        mini_batch = random.sample(self.replay, self.batch_size)
         feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
         next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
@@ -284,7 +286,7 @@ class Agent(object):
             self.save_checkpoint(self.save_path)
             
     @classmethod
-    def from_checkpoint(cls, checkpoint: dict, replay_buffer_file='./src/replay.npy'):
+    def from_checkpoint(cls, checkpoint: dict):
         agent = cls(
             pretrain_steps=checkpoint['pretrain_steps'],
             update_target_freq=checkpoint['update_target_freq'],
@@ -303,28 +305,22 @@ class Agent(object):
         agent.total_t = checkpoint['total_t']
         agent.train_t = checkpoint['train_t']
         
-        agent.replay = ReplayBuffer(checkpoint['replay_size'])
-        agent.replay.flag = checkpoint['replay_flag']
-        agent.replay.index = checkpoint['replay_index']
-        agent.replay.replay_buffer = np.load(replay_buffer_file, allow_pickle=True)
-        
         agent.estimator = Estimator(features_shape=NUM_FEATURES)
         agent.estimator.load_state_dict(checkpoint['estimator'])
-        agent.estimator.eval()
-        
         agent.target_estimator = Estimator(features_shape=NUM_FEATURES)
         agent.target_estimator.load_state_dict(checkpoint['target_estimator'])
-        agent.target_estimator.eval()
         
-        agent.loss_value = checkpoint['loss']
+        agent.loss_value = checkpoint['loss_value']
+        agent.replay = checkpoint['replay']
         agent.optimizer.load_state_dict(checkpoint['optimizer'])
         
         agent.criterion = nn.MSELoss()
         
-    def save_checkpoint(self, path, filename=SAVE_PATH, replay_buffer_file='./src/replay.npy'):
+    def save_checkpoint(self, path, filename='checkpoint.pt'):
         attr = {
             'estimator': self.estimator.state_dict(),
             'target_estimator': self.target_estimator.state_dict(),
+            'replay': self.replay,
             'total_t': self.total_t,
             'train_t': self.train_t,
             'update_target_freq': self.update_target_freq,
@@ -340,16 +336,12 @@ class Agent(object):
             'device': self.device,
             'save_path': self.save_path,
             'save_freq': self.save_freq,
-            'loss': self.loss_value,
-            'replay_flag': self.replay.flag,
-            'replay_size': self.replay.replay_buffer_size,
-            'replay_index': self.replay.index
+            'loss': self.loss_value
         }
         torch.save(attr, filename)
-        np.save(replay_buffer_file, self.replay.replay_buffer)
 
 class Estimator(nn.Module):
-    def __init__(self, features_shape=NUM_FEATURES, image_shape=[17,17]):
+    def __init__(self, features_shape, image_shape=[17,17]):
         super(Estimator, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=5, stride=2)
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
@@ -389,24 +381,6 @@ class Estimator(nn.Module):
         value = self.value(value)
         return value + (adavantage - adavantage.mean(dim=-1, keepdim=True))
 
-class ReplayBuffer(object):
-    def __init__(self, replay_buffer_size):
-        self.replay_buffer = np.empty(replay_buffer_size, dtype=object)
-        self.replay_buffer_size = replay_buffer_size
-        self.index = 0
-        self.flag = 0
-        
-    def save(self, transition):
-        self.replay_buffer[self.index] = transition
-        self.index = (self.index + 1) % self.replay_buffer_size
-        if self.index == 0:
-            self.flag = 1
-            
-    def sample(self, batch_size):
-        n = self.replay_buffer_size if self.flag else self.index
-        indices = np.random.choice(n, size=batch_size, replace=True)
-        return self.replay_buffer[indices]
-
 def train(baselines, episodes=2500, lr=0.001, batch_size=64):
     losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
@@ -420,14 +394,14 @@ def train(baselines, episodes=2500, lr=0.001, batch_size=64):
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_player(name='p0', algorithm=player)
         for i in range(len(baselines)):
-            config.register_player(name=f'p{i + 1}', algorithm=baselines[i]())
+            config.register_player(name=f'p{i}', algorithm=baselines[i]())
         
         game_result = start_poker(config, verbose=0)
         history = player.get_history()
         total_wins += player.win
         
         for i in range(len(history)):
-            agent.feed(tuple(history[i]))
+            agent.feed(history[i])
             
         if episode % 100 == 0:
             print(f'episode {episode} done')
