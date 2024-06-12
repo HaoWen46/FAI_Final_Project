@@ -404,7 +404,7 @@ class ReplayBuffer(object):
     def sample(self, batch_size):
         n = self.replay_buffer_size if self.flag else self.index + 1
         indices = np.random.choice(n, size=batch_size, replace=True)
-        return self.replay_buffer[indices]
+        return self.replay_buffer[indices, :]
 
 def train(baselines, episodes=2500, lr=0.001, batch_size=64):
     losses = []
