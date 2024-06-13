@@ -442,22 +442,7 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
 
-replay_file = './src/replay.npy'
-checkpoint = torch.load(SAVE_PATH)
-replay_buffer = np.load(replay_file, allow_pickle=True)
-index = checkpoint['replay_index']
 
-replay_size = checkpoint['replay_size']
-buffer = np.empty(20000, dtype=object)
-for i in range(20000):
-    buffer[i] = replay_buffer[(index + i + 30000) % replay_size]
-
-np.save(replay_file, buffer)
-
-checkpoint['replay_index'] = 0
-checkpoint['replay_size'] = 20000
-torch.save(checkpoint, SAVE_PATH)
-
-#baselines = [baseline0_ai, baseline1_ai, baseline2_ai]
-#prob = [0.5, 0.3, 0.2]
-#train(baselines=baselines, prob=prob, episodes=5000)
+baselines = [baseline0_ai, baseline1_ai, baseline2_ai]
+prob = [0.3, 0.3, 0.4]
+train(baselines=baselines, prob=prob, episodes=5000)
