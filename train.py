@@ -238,13 +238,13 @@ class Agent(object):
         
     def train(self):
         mini_batch = self.replay.sample(batch_size=self.batch_size)
-        feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
-        image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
-        next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
-        next_image_batch = torch.stack([i2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
-        action_batch = torch.Tensor([a for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
-        reward_batch = torch.Tensor([r for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
-        done_batch = torch.Tensor([float(d) for (f1,i1,a,r,f2,i2,l,d) in mini_batch])
+        feature_batch = torch.stack([f1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch]).to(self.device)
+        image_batch = torch.stack([i1 for (f1,i1,a,r,f2,i2,l,d) in mini_batch]).to(self.device)
+        next_feature_batch = torch.stack([f2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch]).to(self.device)
+        next_image_batch = torch.stack([i2 for (f1,i1,a,r,f2,i2,l,d) in mini_batch]).to(self.device)
+        action_batch = torch.tensor([a for (f1,i1,a,r,f2,i2,l,d) in mini_batch], dtype=torch.long, device=self.device)
+        reward_batch = torch.tensor([r for (f1,i1,a,r,f2,i2,l,d) in mini_batch], dtype=torch.float, device=self.device)
+        done_batch = torch.tensor([float(d) for (f1,i1,a,r,f2,i2,l,d) in mini_batch], dtype=torch.float, device=self.device)
         
         legal_batch = [l for (f1,i1,a,r,f2,i2,l,d) in mini_batch]
         
@@ -256,10 +256,10 @@ class Agent(object):
         masked_q_values = -np.inf * np.ones(self.batch_size * NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
         masked_q_values = torch.tensor(masked_q_values, device=self.device).reshape((self.batch_size, NUM_ACTIONS))
-        actions = np.argmax(masked_q_values, axis=1)
+        actions = torch.argmax(masked_q_values, dim=1)
         
         q_values_next_target = self.__predict_nograd(next_feature_batch, next_image_batch, use_target=True)
-        target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions].detach()
+        target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[torch.arange(self.batch_size), actions].detach()
         
         self.optimizer.zero_grad()
         self.estimator.train()
