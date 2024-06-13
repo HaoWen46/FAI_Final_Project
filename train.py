@@ -162,14 +162,14 @@ class DDDQNPlayer(BasePokerPlayer):
 class Agent(object):
     def __init__(self,
                  replay_size=50000,
-                 update_target_freq=50,
+                 update_target_freq=250,
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
-                 epsilon_decay=0.9995,
+                 epsilon_decay=0.999,
                  discount=0.9,
                  batch_size=64,
-                 train_freq=1,
+                 train_freq=4,
                  learning_rate=0.001,
                  save_path=None,
                  save_freq=1000):
@@ -233,7 +233,7 @@ class Agent(object):
     def feed(self, transition: tuple):
         self.replay.save(transition)
         self.total_t += 1
-        if self.total_t >= self.pretrain_steps:
+        if self.total_t >= self.pretrain_steps and self.total_t % self.train_freq == 0:
             self.train()
         
     def train(self):
@@ -447,6 +447,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
         for loss in losses:
             file.write(f'{loss}\n')
 
-baselines = [baseline0_ai, baseline1_ai, baseline2_ai]
-prob = [0.25, 0.25, 0.5]
+baselines = [random_ai, call_ai]
+prob = [0.5, 0.5]
 train(baselines=baselines, prob=prob, episodes=5000)
