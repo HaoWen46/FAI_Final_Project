@@ -444,4 +444,4 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
 
 baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai]
 prob = [0.3, 0.3, 0.2, 0.2]
-train(baselines=baselines, prob=prob, episodes=5000)
+train(baselines=baselines, prob=prob, episodes=3000)
