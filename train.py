@@ -442,6 +442,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
 
-baselines = [random_ai, call_ai, baseline0_ai]
-prob = [0.25, 0.25, 0.5]
+baselines = [baseline0_ai, baseline1_ai, baseline2_ai]
+prob = [0.5, 0.3, 0.2]
 train(baselines=baselines, prob=prob, episodes=5000)
