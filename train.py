@@ -418,7 +418,6 @@ class ReplayBuffer(object):
         return self.replay_buffer[indices]
 
 def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
-    losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
     else:
@@ -442,12 +441,7 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
         if episode % 100 == 0:
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
-            losses.append(agent.loss_value)
-    
-    with open('losses.log', 'a') as file:
-        for loss in losses:
-            file.write(f'{loss}\n')
 
-baselines = [random_ai, call_ai]
-prob = [0.5, 0.5]
+baselines = [random_ai, call_ai, baseline0_ai]
+prob = [0.25, 0.25, 0.5]
 train(baselines=baselines, prob=prob, episodes=5000)
