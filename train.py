@@ -447,6 +447,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
         for loss in losses:
             file.write(f'{loss}\n')
 
-baselines = [random_ai, call_ai, baseline0_ai]
-prob = [0.25, 0.25, 0.5]
+baselines = [random_ai, call_ai]
+prob = [0.5, 0.5]
 train(baselines=baselines, prob=prob, episodes=5000)
