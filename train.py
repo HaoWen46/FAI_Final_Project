@@ -442,12 +442,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
             print(f'episode {episode} done')
             print(f'Winning rate: {total_wins / episode}')
 
-checkpoint = torch.load(SAVE_PATH)
-checkpoint['device'] = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
-print(checkpoint['device'])
-torch.save(checkpoint, SAVE_PATH)
-
-#baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai]
-#prob = [0.3, 0.3, 0.2, 0.2]
-#train(baselines=baselines, prob=prob, episodes=5000)
+baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai]
+prob = [0.3, 0.3, 0.2, 0.2]
+train(baselines=baselines, prob=prob, episodes=5000)
