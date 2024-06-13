@@ -416,7 +416,7 @@ class ReplayBuffer(object):
         indices = np.random.choice(n, size=batch_size, replace=True)
         return self.replay_buffer[indices]
 
-def train(baselines, episodes=3000, lr=0.001, batch_size=128):
+def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     losses = []
     if os.path.isfile(SAVE_PATH) and os.access(SAVE_PATH, os.R_OK):
         agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
@@ -428,7 +428,7 @@ def train(baselines, episodes=3000, lr=0.001, batch_size=128):
         player = DDDQNPlayer(agent=agent)
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_player(name='p0', algorithm=player)
-        opponent = np.random.choice(baselines, 1)[0]
+        opponent = np.random.choice(baselines, 1, p=prob)[0]
         config.register_player(name=f'p1', algorithm=opponent())
         
         game_result = start_poker(config, verbose=0)
@@ -447,5 +447,6 @@ def train(baselines, episodes=3000, lr=0.001, batch_size=128):
         for loss in losses:
             file.write(f'{loss}\n')
 
-baselines = [random_ai, call_ai]
-train(baselines=baselines, episodes=10000)
+baselines = [random_ai, call_ai, baseline0_ai]
+prob = [0.25, 0.25, 0.5]
+train(baselines=baselines, prob=prob, episodes=5000)
