@@ -255,11 +255,11 @@ class Agent(object):
         q_values_next = self.__predict_nograd(feature_batch, image_batch)
         masked_q_values = -np.inf * np.ones(self.batch_size * NUM_ACTIONS, dtype=float)
         masked_q_values[legal_actions] = q_values_next.flatten()[legal_actions]
-        masked_q_values = masked_q_values.reshape((self.batch_size, NUM_ACTIONS))
+        masked_q_values = torch.tensor(masked_q_values, device=self.device).reshape((self.batch_size, NUM_ACTIONS))
         actions = np.argmax(masked_q_values, axis=1)
         
         q_values_next_target = self.__predict_nograd(next_feature_batch, next_image_batch, use_target=True)
-        target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions]
+        target_batch = reward_batch + (1.0 - done_batch) * self.discount * q_values_next_target[np.arange(self.batch_size), actions].detach()
         
         self.optimizer.zero_grad()
         self.estimator.train()
@@ -447,6 +447,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
         for loss in losses:
             file.write(f'{loss}\n')
 
-baselines = [random_ai, call_ai, baseline0_ai]
+baselines = [baseline0_ai, baseline1_ai, baseline2_ai]
 prob = [0.25, 0.25, 0.5]
 train(baselines=baselines, prob=prob, episodes=5000)
