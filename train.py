@@ -282,7 +282,7 @@ class Agent(object):
             self.target_estimator.load_state_dict(self.estimator.state_dict())
         
         if self.train_t % 500 == 0:
-            print(f'iteration {self.train_t}, Loss = {loss.item()}')
+            print(f'iteration {self.train_t}, Loss = {self.loss_value / 500}')
         
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
