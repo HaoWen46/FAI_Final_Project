@@ -274,7 +274,7 @@ class Agent(object):
         loss.backward()
         self.optimizer.step()
         self.estimator.eval()
-        self.loss_value = loss.item()
+        self.loss_value += loss.item()
         
         self.train_t += 1
         
@@ -283,6 +283,7 @@ class Agent(object):
         
         if self.train_t % 500 == 0:
             print(f'iteration {self.train_t}, Loss = {self.loss_value / 500}')
+            self.loss_value = 0
         
         if self.save_path and self.train_t % self.save_freq == 0:
             self.save_checkpoint(self.save_path)
