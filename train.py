@@ -434,8 +434,13 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
         config.register_player(name=f'p1', algorithm=opponent())
         
         game_result = start_poker(config, verbose=0)
+        stack1 = [p['stack'] for p in game_result['players'] if p['name'] == 'p1'][0]
+        stack2 = [p['stack'] for p in game_result['players'] if p['name'] == 'p2'][0]
+        
+        if stack1 > stack2:
+            total_wins += 1
+            
         history = player.get_history()
-        total_wins += player.win
         
         for i in range(len(history)):
             agent.feed(tuple(history[i]))
