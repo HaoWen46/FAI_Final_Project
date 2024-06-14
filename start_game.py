@@ -3,7 +3,7 @@ from game.game import setup_config, start_poker
 from agents.call_player import setup_ai as call_ai
 from agents.random_player import setup_ai as random_ai
 from agents.console_player import setup_ai as console_ai
-
+from src.agent import setup_ai as my_ai
 
 from baseline0 import setup_ai as baseline0_ai
 from baseline1 import setup_ai as baseline1_ai
@@ -22,4 +22,4 @@ config.register_player(name="p2", algorithm=random_ai())
 #config.register_player(name="me", algorithm=console_ai())
 game_result = start_poker(config, verbose=0)
 
-print(json.dumps(game_result, indent=4))
+print(game_result)
