@@ -22,4 +22,4 @@ config.register_player(name="p2", algorithm=random_ai())
 #config.register_player(name="me", algorithm=console_ai())
 game_result = start_poker(config, verbose=0)
 
-print(game_result)
+print(config)
