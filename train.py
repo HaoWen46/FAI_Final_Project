@@ -163,7 +163,7 @@ class DDDQNPlayer(BasePokerPlayer):
 
 class Agent(object):
     def __init__(self,
-                 replay_size=20000,
+                 replay_size=5000,
                  update_target_freq=250,
                  pretrain_steps=512,
                  epsilon_start=1.0,
@@ -447,6 +447,19 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     agent.save_checkpoint(filename=SAVE_PATH)
 
 
-baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai, my_ai]
-prob = [0.05, 0.05, 0.05, 0.1, 0.1, 0.15, 0.15, 0.35]
-train(baselines=baselines, prob=prob, episodes=500)
+checkpoint = torch.load(SAVE_PATH)
+replay = np.load('./src/replay.npy', allow_pickle=True)
+index = checkpoint['replay_index']
+buffer = np.zeros(5000)
+
+for i in range(5000):
+    buffer[i] = replay[(index + i + 15000) % 20000]
+
+checkpoint['replay_size'] = 5000
+checkpoint['replay_index'] = 0
+
+np.save('./src/replay.npy', buffer)
+torch.save(checkpoint, SAVE_PATH)
+#baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
+#prob = [0.1, 0.1, 0.1, 0.15, 0.15, 0.2, 0.2]
+#train(baselines=baselines, prob=prob, episodes=2500)
