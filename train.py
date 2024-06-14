@@ -162,7 +162,7 @@ class Agent(object):
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
-                 epsilon_decay=0.999,
+                 epsilon_decay=0.995,
                  discount=0.9,
                  batch_size=128,
                  train_freq=4,
