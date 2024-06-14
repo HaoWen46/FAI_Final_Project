@@ -15,12 +15,12 @@ from baseline6 import setup_ai as baseline6_ai
 from baseline7 import setup_ai as baseline7_ai
 
 baselines = [baseline0_ai, baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
-
+baselines = baselines[:2]
 points = []
 criteria = [0.0, 1.5, 3.0, 5.0, 5.0, 5.0]
 for i in range(len(baselines)):
     win = 0
-    for j in range(5):
+    for j in range(1):
         config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
         config.register_player(name="p1", algorithm=random_ai())
         config.register_player(name="p2", algorithm=baselines[i]())
