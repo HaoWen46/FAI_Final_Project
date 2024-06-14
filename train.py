@@ -447,9 +447,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     agent.save_checkpoint(filename=SAVE_PATH)
 
 
-checkpoint = torch.load(SAVE_PATH)
-parameters = checkpoint['estimator']
-torch.save(parameters, './src/parameters.pt')
-#baselines = [baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai, my_ai]
-#prob = [0.1, 0.1, 0.15, 0.15, 0.15, 0.35]
-#train(baselines=baselines, prob=prob, episodes=500)
+baselines = [baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai, my_ai]
+prob = [0.1, 0.1, 0.15, 0.15, 0.15, 0.35]
+train(baselines=baselines, prob=prob, episodes=500)
