@@ -64,7 +64,6 @@ class DDDQNPlayer(BasePokerPlayer):
         self.last_action = None
         self.last_features = None
         self.last_legal_actions = None
-        self.win = 0
         self.history = [] # (features, image, action, reward, next_features, next_images, legal_actions, done)
         
     def get_history(self):
@@ -148,15 +147,10 @@ class DDDQNPlayer(BasePokerPlayer):
             if action['action'] == 'raise':
                 self.opponent_raise_count += 1
 
-    def receive_round_result_message(self, winners, hand_info, round_state):
-        for winner in winners:
-            if winner['uuid'] == self.uuid:
-                self.win = 1
-        
+    def receive_round_result_message(self, winners, hand_info, round_state):        
         if self.last_features is not None:
             current_stack = next(seat['stack'] for seat in round_state['seats'] if seat['uuid'] == self.uuid)
-            reward = current_stack - self.start_stack
-            reward = np.log(1.0 + reward) if reward >= 0 else -np.log(1.0 - reward)
+            reward = float(current_stack - self.start_stack)
             features = torch.zeros(NUM_FEATURES).float()
             image = torch.zeros(289).float()
             self.history.append((self.last_features, self.last_image, self.last_action, reward, features, image, self.last_legal_actions, True))
@@ -164,13 +158,13 @@ class DDDQNPlayer(BasePokerPlayer):
 class Agent(object):
     def __init__(self,
                  replay_size=5000,
-                 update_target_freq=250,
+                 update_target_freq=300,
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
                  epsilon_decay=0.999,
                  discount=0.9,
-                 batch_size=64,
+                 batch_size=128,
                  train_freq=4,
                  learning_rate=0.001,
                  save_path=None,
@@ -451,6 +445,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     
     agent.save_checkpoint(filename=SAVE_PATH)
 
-baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
-prob = [0.1, 0.1, 0.1, 0.15, 0.15, 0.2, 0.2]
+baselines = [random_ai, call_ai]
+prob = [0.5, 0.5]
 train(baselines=baselines, prob=prob, episodes=2500)
