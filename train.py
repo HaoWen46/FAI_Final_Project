@@ -447,8 +447,8 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
 
 
 agent = Agent(learning_rate=0.001,batch_size=128, save_path=SAVE_PATH)
-agent.estimator = torch.load('./src/parameters')
-agent.target_estimator = torch.load('./src/parameters')
+agent.estimator = torch.load('./src/parameters.pt')
+agent.target_estimator = torch.load('./src/parameters.pt')
 agent.save_checkpoint(SAVE_PATH)
 
 baselines = [random_ai, call_ai]
