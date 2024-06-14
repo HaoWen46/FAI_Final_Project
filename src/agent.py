@@ -26,6 +26,7 @@ class Player(BasePokerPlayer):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.opponent_raise_count = 0
         self.opponent_move_count = 0
+        self.street = np.zeros(4)
         self.hand_strength = 0
         self.estimator = Estimator(features_shape=self.NUM_FEATURES)
         self.estimator.load_state_dict(torch.load(self.PATH))
