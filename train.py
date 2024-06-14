@@ -333,7 +333,7 @@ class Agent(object):
         
         return agent
         
-    def save_checkpoint(self, path, filename=SAVE_PATH, replay_buffer_file='./src/replay.npy'):
+    def save_checkpoint(self, filename=SAVE_PATH, replay_buffer_file='./src/replay.npy'):
         attr = {
             'estimator': self.estimator.state_dict(),
             'target_estimator': self.target_estimator.state_dict(),
