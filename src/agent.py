@@ -1,7 +1,6 @@
 from game.players import BasePokerPlayer
 from src.hole_card_est import HoleCardEstimator
 import numpy as np
-import random
 import torch
 import torch.nn as nn
 
@@ -22,13 +21,15 @@ action_set = {
 
 class Player(BasePokerPlayer):
     NUM_FEATURES = 10
-    SAVE_PATH = './src/checkpoint.pt'
+    PATH = './src/parameters.pt'
     def __init__(self):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.opponent_raise_count = 0
         self.opponent_move_count = 0
         self.hand_strength = 0
         self.estimator = Estimator(features_shape=self.NUM_FEATURES)
-        self.estimator.load_state_dict(torch.load(self.SAVE_PATH)['estimator'])
+        self.estimator.load_state_dict(torch.load(self.PATH))
+        self.estimator.to(self.device)
         self.estimator.eval()
         
     def __cards_to_image(self, hole_cards, community_cards):
@@ -69,10 +70,11 @@ class Player(BasePokerPlayer):
         features = torch.from_numpy(features).float()
         image = torch.from_numpy(image).float()
         
-        q_values = self.estimator(features=features, image=image)
-        masked_q_values = -np.inf * np.ones(NUM_ACTIONS)
-        masked_q_values[legal_actions] = q_values[legal_actions]
-        best_action = np.argmax(masked_q_values)
+        with torch.no_grad():
+            q_values = self.estimator(features=features, image=image)
+            masked_q_values = -np.inf * np.ones(NUM_ACTIONS)
+            masked_q_values[legal_actions] = q_values[legal_actions]
+            best_action = np.argmax(masked_q_values)
         
         amount = 0
         if best_action >= 2:
@@ -91,7 +93,8 @@ class Player(BasePokerPlayer):
 
     def receive_street_start_message(self, street, round_state):
         self.street.fill(0)
-        self.street[STREETS.index(street)] = 1
+        if street in STREETS:
+            self.street[STREETS.index(street)] = 1
 
     def receive_game_update_message(self, action, round_state):
         if action['player_uuid'] != self.uuid:

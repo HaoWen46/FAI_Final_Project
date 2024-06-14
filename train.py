@@ -19,6 +19,7 @@ from baseline6 import setup_ai as baseline6_ai
 from baseline7 import setup_ai as baseline7_ai
 from agents.call_player import setup_ai as call_ai
 from agents.random_player import setup_ai as random_ai
+from src.agent import setup_ai as my_ai
 
 SUITS = ('C', 'D', 'H', 'S')
 RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
@@ -138,7 +139,8 @@ class DDDQNPlayer(BasePokerPlayer):
 
     def receive_street_start_message(self, street, round_state):
         self.street.fill(0)
-        self.street[STREETS.index(street)] = 1
+        if street in STREETS:
+            self.street[STREETS.index(street)] = 1
         
     def receive_game_update_message(self, action, round_state):
         if action['player_uuid'] != self.uuid:
@@ -444,6 +446,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     
     agent.save_checkpoint(filename=SAVE_PATH)
 
-baselines = [baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
-prob = [0.2, 0.2, 0.2, 0.2, 0.2]
-train(baselines=baselines, prob=prob, episodes=3000)
+baselines = [baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai, my_ai]
+prob = [0.1, 0.1, 0.15, 0.15, 0.15, 0.35]
+train(baselines=baselines, prob=prob, episodes=500)
