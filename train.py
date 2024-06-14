@@ -158,7 +158,7 @@ class DDDQNPlayer(BasePokerPlayer):
 class Agent(object):
     def __init__(self,
                  replay_size=5000,
-                 update_target_freq=300,
+                 update_target_freq=100,
                  pretrain_steps=512,
                  epsilon_start=1.0,
                  epsilon_end=0.1,
@@ -445,6 +445,9 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     
     agent.save_checkpoint(filename=SAVE_PATH)
 
+agent = Agent.from_checkpoint(checkpoint=torch.load(SAVE_PATH))
+agent.update_target_freq = 100
+agent.save_checkpoint(SAVE_PATH)
 baselines = [baseline0_ai, baseline1_ai, baseline2_ai]
 prob = [0.4, 0.4, 0.2]
-train(baselines=baselines, prob=prob, episodes=1500)
+#train(baselines=baselines, prob=prob, episodes=1500)
