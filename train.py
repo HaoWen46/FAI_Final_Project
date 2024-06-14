@@ -445,5 +445,5 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     agent.save_checkpoint(filename=SAVE_PATH)
 
 baselines = [baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
-prob = [0.2, 0.2, 0,2, 0.2, 0.2]
+prob = [0.2, 0.2, 0.2, 0.2, 0.2]
 train(baselines=baselines, prob=prob, episodes=3000)
