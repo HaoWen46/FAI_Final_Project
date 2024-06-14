@@ -450,7 +450,7 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
 checkpoint = torch.load(SAVE_PATH)
 replay = np.load('./src/replay.npy', allow_pickle=True)
 index = checkpoint['replay_index']
-buffer = np.zeros(5000)
+buffer = np.zeros(5000, dtype=object)
 
 for i in range(5000):
     buffer[i] = replay[(index + i + 15000) % 20000]
