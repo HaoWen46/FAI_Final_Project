@@ -14,12 +14,28 @@ from baseline5 import setup_ai as baseline5_ai
 from baseline6 import setup_ai as baseline6_ai
 from baseline7 import setup_ai as baseline7_ai
 
-config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
-config.register_player(name="p1", algorithm=baseline0_ai())
-config.register_player(name="p2", algorithm=random_ai())
+baselines = [baseline0_ai, baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
 
-## Play in interactive mode if uncomment
-#config.register_player(name="me", algorithm=console_ai())
-game_result = start_poker(config, verbose=0)
+points = []
+criteria = [0.0, 1.5, 3.0, 5.0, 5.0, 5.0]
+for i in range(len(baselines)):
+    win = 0
+    for j in range(5):
+        config = setup_config(max_round=20, initial_stack=1000, small_blind_amount=5)
+        config.register_player(name="p1", algorithm=random_ai())
+        config.register_player(name="p2", algorithm=baselines[i]())
 
-print(config)
+        ## Play in interactive mode if uncomment
+        #config.register_player(name="me", algorithm=console_ai())
+        game_result = start_poker(config, verbose=0)
+        
+        stack1 = [p['stack'] for p in game_result['players'] if p['name'] == 'p1'][0]
+        stack2 = [p['stack'] for p in game_result['players'] if p['name'] == 'p2'][0]
+        
+        if stack1 > stack2:
+            win += 1
+            
+    points.append(criteria[win])
+
+print(f'Performance: {points}')
+print(f'Total score = {sum(points)}')
