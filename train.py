@@ -445,8 +445,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     
     agent.save_checkpoint(filename=SAVE_PATH)
 
-buffer = np.empty(5000, dtype=object)
-np.save('./src/replay.npy', buffer)
 baselines = [random_ai, call_ai]
 prob = [0.5, 0.5]
-#train(baselines=baselines, prob=prob, episodes=1500)
+train(baselines=baselines, prob=prob, episodes=1500)
