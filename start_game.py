@@ -14,7 +14,7 @@ from baseline5 import setup_ai as baseline5_ai
 from baseline6 import setup_ai as baseline6_ai
 from baseline7 import setup_ai as baseline7_ai
 
-baselines = [baseline1_ai, baseline2_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
+baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai, baseline5_ai, baseline6_ai, baseline7_ai]
 baselines = baselines
 points = []
 criteria = [0.0, 1.5, 3.0, 5.0, 5.0, 5.0]
