@@ -1,3 +1,4 @@
+# This file should be run under the same directory as start_game.py
 from game.players import BasePokerPlayer
 from game.engine.hand_evaluator import HandEvaluator
 from game.game import setup_config, start_poker
@@ -445,6 +446,6 @@ def train(baselines, prob=None, episodes=5000, lr=0.001, batch_size=128):
     
     agent.save_checkpoint(filename=SAVE_PATH)
 
-baselines = [baseline0_ai, baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai]
-prob = [0.3, 0.2, 0.2, 0.15, 0.15]
-train(baselines=baselines, prob=prob, episodes=2500)
+baselines = [baseline1_ai, baseline2_ai, baseline3_ai, baseline4_ai]
+prob = [0.2, 0.2, 0.15, 0.15]
+train(baselines=baselines, prob=prob, episodes=1000)
