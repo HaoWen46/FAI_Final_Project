@@ -1,8 +1,9 @@
 from game.players import BasePokerPlayer
-from src.hole_card_est import HoleCardEstimator
+from .hole_card_est import HoleCardEstimator
 import numpy as np
 import torch
 import torch.nn as nn
+from os.path import dirname
 
 SUITS = ('C', 'D', 'H', 'S')
 RANKS = ('2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A')
@@ -21,7 +22,7 @@ action_set = {
 
 class Player(BasePokerPlayer):
     NUM_FEATURES = 10
-    PATH = './src/parameters.pt'
+    PATH = f'{dirname(__file__)}/parameters.pt'
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.opponent_raise_count = 0
